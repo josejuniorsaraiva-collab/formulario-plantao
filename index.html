@@ -305,7 +305,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
 <div id="tc"></div>
 
 <!-- ═══════ PREVIEW MODAL ═══════ -->
-<div class="oi" id="pvModal">
+<div class="ov" id="pvModal">
   <div class="mo" style="max-width:900px">
     <div class="mo-hd">
       <h2>📋 Prévia das Guias — Unimed Cariri</h2>
@@ -642,7 +642,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
 /* ──────────────────────────────────────────────
    CONFIG
 ────────────────────────────────────────────── */
-const WH = "https://hook.us2.make.com/yerhrppm26aylw9jj2efmapq6ny8jlif";
+const WH = "https://hook.us2.make.com/yerhrrppm26aylw9jj2efmapq6ny8jlif";
 
 const COLUNA_PROCS = [
   "Microdiscectomia lombar","Laminectomia descompressiva lombar",
@@ -931,7 +931,7 @@ function collect(){
     obs_convenio:g('obs_convenio'),
     procedimento:g('procedimento')||g('proc_outro'),
     codigo_proc:g('codigo_proc'),
-    cids_principais:g('cid_principal'),
+    cid_principal:g('cid_principal'),
     cid2:g('cid2'),
     cod_cbhpm:g('cod_cbhpm'),
     cod_tuss:g('cod_tuss'),
@@ -1555,7 +1555,7 @@ function printGuia(which){
       .fv.sm{font-size:9px}
       .sh{background:#d0d0d0;font-weight:700;font-size:8px;padding:2px 4px}
       .logo-u{background:#1f4e79;color:#fff;padding:2px 6px;font-weight:900;font-style:italic}
-      .sig-area{min-height:24px;display:block9border-bottom:1px solid #555}
+      .sig-area{min-height:24px;display:block;border-bottom:1px solid #555}
       .opme-tbl td,.opme-tbl th{font-size:8px}
       .logo-uni{display:flex;align-items:center;gap:4px}
     </style>
