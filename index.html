@@ -985,7 +985,7 @@ function validate(){
   if(!d.carater_cod){errs.push('Caráter do atendimento');mark('carater')}
   if(!d.hospital){errs.push('Hospital / clínica');mark('hospital')}
   if(!d.procedimento){errs.push('Procedimento principal');mark('procedimento')}
-  if(!d.cids_principais.trim()){errs.push('CID-10 principal');mark('cid_principal')}
+  if(!d.cid_principal.trim()){errs.push('CID-10 principal');mark('cid_principal')}
   if(!d.indicacao_clinica.trim()||d.indicacao_clinica.length<40){
     errs.push('Indicação clínica (mínimo 40 caracteres)');mark('indicacao_clinica')}
   if(!d.medico_solicitante.trim()){errs.push('Nome do médico solicitante');mark('medico_solicitante')}
@@ -1024,7 +1024,7 @@ function buildMiniRev(){
   let html=`<div class="tiles">
     ${t('🧑‍⚕️ Paciente',d.nome_paciente,d.idade)}
     ${t('🏥 Convênio',d.convenio,d.carater)}
-    ${t('🔬 Procedimento',(d.procedimento||'').substring(0,32),d.cids_principais)}
+    ${t('🔬 Procedimento',(d.procedimento||'').substring(0,32),d.cid_principal)}
     ${t('🔩 OPME',d.opme_1||'—',d.empresa_opme)}
     ${t('📋 Indicação',(d.indicacao_clinica||'').substring(0,50)+'…','')}
     ${t('✉️ Médico',d.medico_solicitante,d.crm)}
@@ -1639,7 +1639,7 @@ function restoreDraft(){
       'medico_solicitante','crm','cbo','tel_medico','necessita_opme','necessita_sadt',
       'empresa_opme','justificativa_opme','sadt_solicitado','status_inicial','obs_finais'];
     flds.forEach(id=>{if(d[id]!==undefined)sv(id,d[id])});
-    if(d.cids_principais)sv('cid_principal',d.cids_principais);
+    if(d.cid_principal)sv('cid_principal',d.cid_principal);
     if(d.codigo_proc)sv('codigo_proc',d.codigo_proc);
     if(d.cod_cbhpm)sv('cod_cbhpm',d.cod_cbhpm);
     calcAge();fillANS();
