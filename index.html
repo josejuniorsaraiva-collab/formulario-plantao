@@ -1577,7 +1577,7 @@ function trySubmit(){
   openPreview();
 }
 
-apync function confirmedSend(){
+async function confirmedSend(){
   const sp=document.getElementById('sp');
   const btn=document.getElementById('confirmSendBtn');
   sp.classList.add('on');btn.disabled=true;
