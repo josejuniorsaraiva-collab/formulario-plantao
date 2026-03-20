@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NEUROAUTH v2 â€” SolicitaÃ§Ã£o CirÃºrgica</title>
+
+<!-- iOS PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="NEUROAUTH"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#1a3f6f"/>
+<meta name="msapplication-TileColor" content="#1a3f6f"/>
+
+<!-- iOS Splash / Icons -->
+
+<!-- Performance hints -->
+<meta name="description" content="SolicitaÃ§Ã£o de autorizaÃ§Ã£o cirÃºrgica neurocirÃºrgica â€” NEUROAUTH"/>
+<link rel="dns-prefetch" href="https://hook.us2.make.com"/>
+<link rel="preconnect" href="https://hook.us2.make.com"/>
+<style>
+:root{
+  --b1:#1a3f6f;--b2:#1f4e79;--b3:#2d6fad;--bp:#e8f0f9;
+  --g1:#1e7a4a;--gp:#e6f5ed;
+  --r1:#b00020;--rp:#fce8eb;
+  --a1:#b45309;--ap:#fef3c7;
+  --s1:#f4f6f9;--s2:#e9eef4;--s3:#d1d9e3;--s4:#8a97a8;--s5:#4a5568;
+  --tx:#1e2432;--rad:10px;
+  --sh:0 4px 20px rgba(0,0,0,.09);
+  --tr:.16s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--s1);color:var(--tx);min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:linear-gradient(135deg,var(--b1),var(--b2) 60%,var(--b3));color:#fff;padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;height:60px;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.tb-logo{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900}
+.tb-title{font-size:17px;font-weight:700}
+.tb-sub{font-size:11px;opacity:.7}
+.tb-right{display:flex;align-items:center;gap:10px}
+.badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  border-radius:20px;padding:3px 11px;font-size:11px;font-weight:600}
+.tb-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);
+  color:#fff;border-radius:7px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600;
+  transition:var(--tr)}
+.tb-btn:hover{background:rgba(255,255,255,.2)}
+.dot{width:8px;height:8px;border-radius:50%;background:#64748b;display:inline-block;margin-right:5px}
+.dot.ok{background:#22c55e;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+
+/* PROGRESS */
+.prog{background:#fff;border-bottom:1px solid var(--s2);padding:0 20px;overflow-x:auto}
+.prog-steps{display:flex;align-items:center;min-width:560px}
+.step{display:flex;align-items:center;gap:7px;padding:12px 14px;cursor:pointer;
+  border-bottom:3px solid transparent;white-space:nowrap;transition:var(--tr)}
+.step:hover{background:var(--bp)}
+.step.active{border-bottom-color:var(--b2)}
+.step-n{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;background:var(--s2);color:var(--s4);flex-shrink:0;transition:var(--tr)}
+.step.active .step-n{background:var(--b2);color:#fff}
+.step.done .step-n{background:var(--g1);color:#fff}
+.step-lbl{font-size:12px;font-weight:600;color:var(--s5)}
+.step.active .step-lbl{color:var(--b2)}
+.step.done .step-lbl{color:var(--g1)}
+.step-sep{flex:1;height:1px;background:var(--s2);min-width:8px}
+
+/* MAIN */
+.main{max-width:1020px;margin:20px auto;padding:0 14px 90px}
+
+/* QUICK FILL */
+.qbar{background:var(--ap);border:1px solid #fcd34d;border-radius:var(--rad);
+  padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.qbar-lbl{font-size:11px;font-weight:700;color:var(--a1);text-transform:uppercase;letter-spacing:.4px}
+.qf{background:#fff;border:1px solid #fcd34d;border-radius:6px;padding:4px 11px;
+  font-size:12px;font-weight:600;cursor:pointer;color:var(--b1);transition:var(--tr)}
+.qf:hover{background:var(--ap);border-color:var(--a1)}
+
+/* CARD */
+.card{background:#fff;border-radius:var(--rad);box-shadow:var(--sh);overflow:hidden;margin-bottom:16px}
+.card-hd{background:var(--bp);padding:11px 18px;display:flex;align-items:center;gap:9px;
+  border-bottom:1px solid var(--s2)}
+.card-ico{width:30px;height:30px;border-radius:7px;background:var(--b2);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:15px}
+.card-ttl{font-size:14px;font-weight:700;color:var(--b1)}
+.card-body{padding:18px}
+
+/* TABS */
+.tab-page{display:none}
+.tab-page.active{display:block}
+
+/* GRID */
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.full{grid-column:1/-1}
+
+/* FIELD */
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;font-weight:700;color:var(--s5);text-transform:uppercase;letter-spacing:.35px}
+.field label .req{color:var(--r1);margin-left:2px}
+.field label .auto{font-size:9px;font-weight:600;background:var(--gp);color:var(--g1);
+  border-radius:3px;padding:1px 4px;margin-left:4px;text-transform:lowercase}
+.field label .cond{font-size:9px;font-weight:600;background:#fff7ed;color:#c2410c;
+  border-radius:3px;padding:1px 4px;margin-left:4px;text-transform:lowercase}
+input,select,textarea{padding:9px 12px;border:1.5px solid var(--s3);border-radius:7px;
+  font-size:13px;background:#fff;color:var(--tx);transition:border-color var(--tr),box-shadow var(--tr);width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--b3);
+  box-shadow:0 0 0 3px rgba(45,111,173,.1)}
+input.err,select.err,textarea.err{border-color:var(--r1);box-shadow:0 0 0 3px rgba(176,0,32,.07)}
+input.af{background:var(--gp);border-color:var(--g1)}
+textarea{min-height:90px;resize:vertical;line-height:1.5}
+.hint{font-size:10px;color:var(--s4);margin-top:1px}
+
+/* SEC TITLE */
+.sec{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--s4);border-bottom:1px dashed var(--s3);padding-bottom:3px;margin:6px 0 2px;
+  grid-column:1/-1}
+
+/* INFO BOX */
+.info{background:var(--bp);border-left:4px solid var(--b2);border-radius:0 7px 7px 0;
+  padding:9px 13px;font-size:12px;color:var(--b1);margin:4px 0}
+
+/* OPME ROWS */
+.opme-row{display:grid;grid-template-columns:2fr 1fr 60px 60px auto;gap:7px;align-items:end;
+  padding:9px 10px;background:var(--s1);border-radius:7px;border:1px solid var(--s2);margin-bottom:6px}
+.del{background:var(--rp);color:var(--r1);border:1px solid #fca5a5;border-radius:6px;
+  padding:7px 9px;cursor:pointer;font-size:13px;font-weight:700}
+.del:hover{background:#fee2e2}
+.add-row{background:var(--bp);color:var(--b2);border:1px dashed var(--b3);border-radius:7px;
+  padding:8px 14px;cursor:pointer;font-size:12px;font-weight:600;width:100%;transition:var(--tr)}
+.add-row:hover{background:#dbeafe}
+
+/* ERROR LIST */
+.err-box{background:var(--rp);border:1px solid #fca5a5;border-radius:8px;padding:12px 14px;
+  margin-top:12px}
+.err-box .err-ttl{font-size:13px;font-weight:700;color:var(--r1);margin-bottom:6px}
+.err-box ul{padding-left:18px;font-size:12px;color:var(--r1)}
+.ok-box{background:var(--gp);border:1px solid #86efac;border-radius:8px;padding:12px 14px;
+  font-size:13px;color:var(--g1);font-weight:700;margin-top:12px}
+
+/* FOOTER */
+.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--s2);
+  padding:11px 24px;display:flex;justify-content:space-between;align-items:center;z-index:99;
+  box-shadow:0 -4px 16px rgba(0,0,0,.07)}
+.nav-btns{display:flex;gap:8px}
+.btn{border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;
+  transition:var(--tr);display:inline-flex;align-items:center;gap:5px}
+.btn-sec{background:var(--s2);color:var(--b1)}
+.btn-sec:hover{background:var(--s3)}
+.btn-out{background:transparent;border:1.5px solid var(--b2);color:var(--b2)}
+.btn-out:hover{background:var(--bp)}
+.btn-pri{background:var(--b2);color:#fff}
+.btn-pri:hover{background:var(--b1)}
+.btn-pri:disabled{background:var(--s3);cursor:not-allowed}
+.btn-ok{background:var(--g1);color:#fff}
+.btn-ok:hover{background:#165e38}
+.btn-danger{background:var(--rp);color:var(--r1);border:1px solid #fca5a5}
+.btn-danger:hover{background:#fee2e2}
+.spinner{width:15px;height:15px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;
+  border-radius:50%;animation:spin .6s linear infinite;display:none}
+.spinner.on{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOASTS */
+#tc{position:fixed;top:70px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.toast{background:#1e2432;color:#fff;padding:11px 16px;border-radius:9px;font-size:12px;font-weight:600;
+  max-width:320px;box-shadow:0 4px 18px rgba(0,0,0,.2);animation:tslide .22s ease}
+.toast.ok{background:var(--g1)}
+.toast.er{background:var(--r1)}
+.toast.wa{background:var(--a1)}
+@keyframes tslide{from{transform:translateX(80px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* MODALS */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:200;
+  align-items:center;justify-content:center}
+.ov.open{display:flex}
+.mo{background:#fff;border-radius:13px;width:92%;max-height:91vh;overflow-y:auto;
+  box-shadow:0 14px 50px rgba(0,0,0,.25)}
+.mo-hd{background:var(--b2);color:#fff;padding:14px 20px;border-radius:13px 13px 0 0;
+  display:flex;justify-content:space-between;align-items:center}
+.mo-hd h2{font-size:15px}
+.mo-x{background:rgba(255,255,255,.18);border:none;color:#fff;width:28px;height:28px;
+  border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.mo-body{padding:0}
+.mo-ft{padding:14px 18px;border-top:1px solid var(--s2);display:flex;gap:8px;justify-content:flex-end}
+
+/* PREVIEW TABS */
+.ptabs{display:flex;border-bottom:2px solid var(--s2);padding:0 18px}
+.ptab{padding:11px 16px;cursor:pointer;font-size:13px;font-weight:600;color:var(--s5);
+  border-bottom:3px solid transparent;margin-bottom:-2px;transition:var(--tr)}
+.ptab:hover{color:var(--b2)}
+.ptab.active{color:var(--b2);border-bottom-color:var(--b2)}
+.ppage{display:none;padding:16px 18px}
+.ppage.active{display:block}
+
+/* CONFIRM MODAL */
+.cm{max-width:400px}
+.cm-body{padding:20px 20px 10px;font-size:14px;color:var(--s5);line-height:1.55}
+.cm-body strong{color:var(--tx)}
+
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   UNIMED GUIA STYLES (print-faithful)
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+.guia-wrap{background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:9px;
+  color:#000;width:100%;overflow-x:auto}
+.guia-wrap *{box-sizing:border-box}
+.guia-table{width:100%;border-collapse:collapse;min-width:680px}
+.guia-table td,.guia-table th{border:1px solid #000;padding:1px 3px;vertical-align:top}
+.guia-table td.nb{border:none}
+.fn{font-size:7px;color:#000;display:block;margin-bottom:1px;font-weight:normal}
+.fv{font-size:11px;font-weight:700;min-height:14px;display:block}
+.fv.sm{font-size:9px}
+.sh{background:#d8d8d8;font-weight:700;font-size:8.5px;padding:2px 4px;font-style:normal}
+.logo-cell{padding:4px 6px;vertical-align:middle;width:140px}
+.logo-uni{display:flex;align-items:center;gap:5px}
+.logo-u{width:48px;height:22px;background:var(--b2);color:#fff;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:900;font-style:italic;border-radius:2px}
+.logo-cariri{font-size:9px;font-weight:700;color:#000}
+.guia-title-cell{text-align:center;font-weight:700;font-size:11px;padding:4px}
+.guia-proc-label{text-align:right;font-size:8px;font-weight:700;padding:2px 4px;
+  vertical-align:bottom}
+.guia-num{font-size:9px;font-weight:700}
+.box-list{list-style:none;padding:0}
+.fblank{in-height:28px;display:block;border-bottom:1px solid #aaa;margin:2px 0;font-size:11px;font-weight:700}
+.sig-area{min-height:28px;border-bottom:1px solid #555;display:block}
+.grand-total{font-weight:700;background:#f0f0f0}
+
+/* OPME TABLE */
+.opme-tbl{width:100%;border-collapse:collapse;font-size:8px}
+.opme-tbl td,.opme-tbl th{border:1px solid #000;padding:1px 3px;vertical-align:top}
+.opme-tbl .th{background:#e8e8e8;font-weight:700;font-size:7.5px}
+
+@media print{
+  .guia-wrap{page-break-inside:avoid}
+  .guia-table{font-size:8px}
+  .fv{font-size:10px}
+}
+
+/* MINI REVIEW TILES */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;margin-top:10px}
+.tile{background:var(--bp);border-radius:8px;padding:11px}
+.tile-t{font-size:11px;font-weight:700;color:var(--b1);margin-bottom:3px}
+.tile-v{font-size:13px;font-weight:600}
+.tile-s{font-size:10px;color:var(--s4)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-brand">
+    <div class="tb-logo">N</div>
+    <div>
+      <div class="tb-title">NEUROAUTH</div>
+      <div class="tb-sub">Sistema de AutorizaÃ§Ã£o CirÃºrgica â€” v2.0</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <span id="wh-dot" class="dot" title="Status webhook"></span>
+    <span id="wh-lbl" style="font-size:12px;opacity:.8">Webhook</span>
+    <button class="tb-btn" onclick="testWebhook()">âš¡ Testar webhook</button>
+    <button class="tb-btn" onclick="saveDraft()">ğŸ’¾ Rascunho</button>
+    <span class="badge">Dr. JosÃ© Correia Jr.</span>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="prog">
+  <div class="prog-steps" id="ps">
+    <div class="step active" onclick="goTab(0)"><div class="step-n"><span>1</span></div><div class="step-lbl">ğŸ§‘â€âš•ï¸ Paciente</div></div>
+    <div class="step-sep"></div>
+    <div class="step" onclick="goTab(1)"><div class="step-n"><span>2</span></div><div class="step-lbl">ğŸ¥ ConvÃªnio</div></div>
+    <div class="step-sep"></div>
+    <div class="step" onclick="goTab(2)"><div class="step-n"><span>3</span></div><div class="step-lbl">ğŸ”¬ Procedimento</div></div>
+    <div class="step-sep"></div>
+    <div class="step" onclick="goTab(3)"><div class="step-n"><span>4</span></div><div class="step-lbl">ğŸ‘¤ Opme</div></div>
+    <div class="step-sep"></div>
+    <div class="step" onclick="goTab(4)"><div class="step-n"><span>5</span></div><div class="step-lbl">ğŸ’¡ Revisao</div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+<!-- QUICK FILL BAR -->
+<div class="qbar">
+  <span class="qbar-lbl">â™©â€ âš¥ï¸ Preenchimento rÃ¡pido:</span>
+  <button class="qf" onclick="quickFill('hernia')">âš¡ Hernia de disco lumbar microdiscectomia</button>
+  <button class="qf" onclick="quickFill('espondilodese')">âš¡ Espondilodese</button>
+  <button class="qf" onclick="quickFill('tunelcarpal')">âš© TÃºnel do Carpal</button>
+  <button class="qf" onclick="quickFill('neuroma')">âš© Neuroma de Morton</button>
+</div>></div><div class="step-lbl">ğŸ“‹ ClÃ­nica</div></div>
+    <div class="step-sep"></div>
+    <div class="step" onclick="goTab(4)"><div class="step-n"><span>5</span></div><div class="step-lbl">ğŸ”© OPME</div></div>
+    <div class="step-sep"></div>
+    <div class="step" onclick="goTab(5)"><div class="step-n"><span>6</span></div><div class="step-lbl">âœ‰ï¸ Revisar</div></div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="tc"></div>
+
+<!-- â•â•â•â•â•â•â• PREVIEW MODAL â•â•â•â•â•â•â• -->
+<div class="oi" id="pvModal">
+  <div class="mo" style="max-width:900px">
+    <div class="mo-hd">
+      <h2>ğŸ“‹ PrÃ©via das Guias â€” Unimed Cariri</h2>
+      <button class="mo-x" onclick="closeModal('pvModal')">âœ•</button>
+    </div>
+    <div class="ptabs">
+      <div class="ptab active" onclick="showPTab('pv-sadt',this)">Guia SADT</div>
+      <div class="ptab" onclick="showPTab('pv-opme',this)">Guia OPME</div>
+      <div class="ptab" onclick="showPTab('pv-dados',this)">Dados / Payload</div>
+    </div>
+    <div class="ppage active" id="pv-sadt"><div id="sadt-render"></div></div>
+    <div class="ppage" id="pv-opme"><div id="opme-render"></div></div>
+    <div class="ppage" id="pv-dados"><pre id="dados-render" style="font-size:11px;background:#f8f8f8;padding:14px;border-radius:8px;overflow-x:auto;white-space:pre-wrap"></pre></div>
+    <div class="mo-ft">
+      <button class="btn btn-sec" onclick="closeModal('pvModal')">Fechar</button>
+      <button class="btn btn-out" onclick="printGuia('sadt')">ğŸ–¨ï¸ Imprimir SADT</button>
+      <button class="btn btn-out" onclick="printGuia('opme')">ğŸ–¨ï¸ Imprimir OPME</button>
+      <button class="btn btn-ok" id="confirmSendBtn" onclick="confirmedSend()">
+        <span class="spinner" id="sp"></span> âœ… Confirmar Envio
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- â•â•â•â•â•â•â• CONFIRM RESET MODAL â•â•â•â•â•â•â• -->
+<div class="ov" id="rstModal">
+  <div class="mo cm">
+    <div class="mo-hd" style="background:var(--r1)">
+      <h2>ğŸ—‘ Limpar formulÃ¡rio</h2>
+      <button class="mo-x" onclick="closeModal('rstModal')">âœ•</button>
+    </div>
+    <div class="cm-body"><strong>Todos os campos serÃ£o apagados.</strong><br>O rascunho local tambÃ©m serÃ¡ removido. Deseja continuar?</div>
+    <div class="mo-ft">
+      <button class="btn btn-sec" onclick="closeModal('rstModal')">Cancelar</button>
+      <button class="btn btn-danger" onclick="doReset()">Limpar tudo</button>
+    </div>
+  </div>
+</div>
+
+<!-- â•â•â•â•â•â•â• MAIN FORM â•â•â•â•â•â•â• -->
+<div class="main">
+<div class="qbar">
+  <span class="qbar-lbl">âš¡ Casos:</span>
+  <button class="qf" onclick="qf('PROC001')">PROC001 HÃ©rnia Lombar</button>
+  <button class="qf" onclick="qf('PROC002')">PROC002 Artrodese Cervical</button>
+  <button class="qf" onclick="qf('PROC003')">PROC003 Tumor Cerebral</button>
+  <button class="qf" onclick="qf('PROC005')">PROC005 Estenose Lombar</button>
+  <button class="qf" onclick="qf('PROC006')">PROC006 RevisÃ£o CirÃºrgica</button>
+  <button class="qf" style="color:var(--r1);border-color:#fca5a5" onclick="openModal('rstModal')">ğŸ—‘ Limpar</button>
+</div>
+
+<form id="nf" novalidate>
+
+<!-- TAB 0 PACIENTE -->
+<div class="tab-page active" id="p0">
+<div class="card">
+  <div class="card-hd"><div class="card-ico">ğŸ§‘â€âš•ï¸</div><div class="card-ttl">IdentificaÃ§Ã£o do Paciente</div></div>
+  <div class="card-body">
+    <div class="grid g2">
+      <div class="field full"><label>Nome completo <span class="req">*</span></label>
+        <input id="nome_paciente" type="text" placeholder="Nome completo"/></div>
+      <div class="field"><label>Data de nascimento</label>
+        <input id="data_nascimento" type="date" onchange="calcAge()"/></div>
+      <div class="field"><label>Idade <span class="auto">auto</span></label>
+        <input id="idade" type="text" readonly class="af" placeholder="Calculada"/></div>
+      <div class="field"><label>Sexo</label>
+        <select id="sexo"><option value="">Selecionar</option>
+          <option>Masculino</option><option>Feminino</option><option>NÃ£o informado</option></select></div>
+      <div class="field"><label>CPF</label>
+        <input id="cpf" type="text" placeholder="000.000.000-00" maxlength="14" oninput="mCPF(this)"/></div>
+      <div class="field"><label>Telefone / WhatsApp</label>
+        <input id="telefone" type="text" placeholder="(00) 90000-0000" maxlength="15" oninput="mPhone(this)"/></div>
+      <div class="field"><label>E-mail</label>
+        <input id="email" type="email" placeholder="paciente@email.com"/></div>
+      <div class="field"><label>CartÃ£o Nacional de SaÃºde (CNS)</label>
+        <input id="cns" type="text" placeholder="000 0000 0000 0000"/></div>
+      <div class="field full"><label>Alergias / comorbidades</label>
+        <textarea id="comorbidades" placeholder="HAS, DM2, alergia a AASâ€¦"></textarea></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 1 CONVENIO -->
+<div class="tab-page" id="p1">
+<div class="card">
+  <div class="card-hd"><div class="card-ico">ğŸ¥</div><div class="card-ttl">Dados do ConvÃªnio</div></div>
+  <div class="card-body">
+    <div class="grid g2">
+      <div class="field"><label>Operadora <span class="req">*</span></label>
+        <select id="convenio" required onchange="fillANS()">
+          <option value="">Selecionar</option>
+          <option>Unimed</option><option>Bradesco SaÃºde</option><option>SulAmÃ©rica</option>
+          <option>Amil</option><option>Hapvida</option><option>NotreDame IntermÃ©dica</option>
+          <option>Particular</option><option>Outro</option></select></div>
+      <div class="field"><label>CÃ³digo ANS <span class="auto">auto</span></label>
+        <input id="codigo_ans" type="text" readonly class="af"/></div>
+      <div class="field"><label>NÃºmero da carteirinha</label>
+        <input id="numero_carteira" type="text" placeholder="000000000000000"/></div>
+      <div class="field"><label>Validade da carteirinha</label>
+        <input id="validade_carteira" type="date"/></div>
+      <div class="field"><label>CarÃ¡ter do atendimento <span class="req">*</span></label>
+        <select id="carater" required>
+          <option value="">Selecionar</option>
+          <option value="E">Eletivo</option>
+          <option value="U">UrgÃªncia</option>
+          <option value="X">EmergÃªncia</option></select></div>
+      <div class="field"><label>Tipo de guia</label>
+        <select id="tipo_guia">
+          <option value="">Selecionar</option>
+          <option value="SADT">SADT</option><option value="InternaÃ§Ã£o">InternaÃ§Ã£o</option>
+          <option value="SADT + OPME">SADT + OPME</option></select></div>
+      <div class="field"><label>Hospital / ClÃ­nica <span class="req">*</span></label>
+        <select id="hospital" required>
+          <option value="">Selecionar</option>
+          <option>Hospital Santo AntÃ´nio â€” Juazeiro do Norte</option>
+          <option>Hospital do CoraÃ§Ã£o do Cariri</option>
+          <option>Hospital Regional do Cariri</option>
+          <option>Outro</option></select></div>
+      <div class="field"><label>Regime de internaÃ§Ã£o</label>
+        <select id="regime">
+          <option value="">Selecionar</option>
+          <option>Ambulatorial</option><option>InternaÃ§Ã£o 1 dia</option>
+          <option>InternaÃ§Ã£o curta (2â€“3 dias)</option><option>InternaÃ§Ã£o prolongada</option></select></div>
+      <div class="field full"><label>ObservaÃ§Ãµes do convÃªnio</label>
+        <textarea id="obs_convenio" placeholder="PrÃ©-autorizaÃ§Ãµes, contatos, protocolosâ€¦"></textarea></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 2 PROCEDIMENTO -->
+<div class="tab-page" id="p2">
+<div class="card">
+  <div class="card-hd"><div class="card-ico">ğŸ”¬</div><div class="card-ttl">Procedimento CirÃºrgico</div></div>
+  <div class="card-body">
+    <div class="grid g2">
+      <div class="field"><label>CÃ³digo PROC <span class="auto">auto</span></label>
+        <input id="codigo_proc" type="text" readonly class="af"/></div>
+      <div class="field"><label>Especialidade</label>
+        <select id="especialidade">
+          <option value="Neurocirurgia">Neurocirurgia</option>
+          <option value="Cirurgia da Coluna">Cirurgia da Coluna</option></select></div>
+      <div class="field full"><label>Procedimento principal <span class="req">*</span></label>
+        <select id="procedimento" required onchange="autoProc()">
+          <option value="">Selecionarâ€¦</option>
+          <optgroup label="Coluna Lombar">
+            <option value="Microdiscectomia lombar">Microdiscectomia lombar (hÃ©rnia de disco)</option>
+            <option value="Laminectomia descompressiva lombar">Laminectomia descompressiva lombar (estenose)</option>
+            <option value="Artrodese lombar com instrumentaÃ§Ã£o">Artrodese lombar com instrumentaÃ§Ã£o pedicular</option>
+            <option value="RevisÃ£o artrodese lombar">RevisÃ£o de artrodese lombar (pseudoartrose)</option>
+          </optgroup>
+          <optgroup label="Coluna Cervical">
+            <option value="Artrodese cervical anterior ACDF">Artrodese cervical anterior (ACDF)</option>
+            <option value="Artroplastia cervical anterior">Artroplastia cervical anterior (prÃ³tese discal)</option>
+          </optgroup>
+          <optgroup label="CrÃ¢nio / Neurocirurgia">
+            <option value="Craniotomia ressecÃ§Ã£o tumor cerebral">Craniotomia para ressecÃ§Ã£o de tumor cerebral</option>
+            <option value="DerivaÃ§Ã£o ventriculoperitoneal">DerivaÃ§Ã£o ventriculoperitoneal (DVP)</option>
+            <option value="Angiografia cerebral diagnÃ³stica">Angiografia cerebral diagnÃ³stica</option>
+            <option value="EmbolizaÃ§Ã£o endovascular de aneurisma">EmbolizaÃ§Ã£o endovascular de aneurisma</option>
+          </optgroup>
+          <option value="Outro">Outro (especificar)</option>
+        </select></div>
+      <div class="field full" id="proc_outro_wrap" style="display:none">
+        <label>Descreva o procedimento</label>
+        <input id="proc_outro" type="text" placeholder="Procedimento nÃ£o listado"/></div>
+      <div class="field"><label>CID-10 principal <span class="req">*</span> <span class="auto">auto</span></label>
+        <input id="cid_principal" type="text" required class="af" placeholder="Ex: M51.1"
+          oninput="this.value=this.value.toUpperCase()"/>
+        <span class="hint" id="cidHint"></span></div>
+      <div class="field"><label>CID-10 secundÃ¡rio</label>
+        <input id="cid2" type="text" placeholder="Opcional" oninput="this.value=this.value.toUpperCase()"/></div>
+      <div class="field"><label>CÃ³digo CBHPM <span class="auto">auto</span></label>
+        <input id="cod_cbhpm" type="text" readonly class="af"/></div>
+      <div class="field"><label>CÃ³digo TUSS</label>
+        <input id="cod_tuss" type="text" placeholder="Ex: 30715014"/></div>
+      <div class="sec">Detalhes CirÃºrgicos</div>
+      <div class="field"><label>RegiÃ£o anatÃ´mica</label>
+        <select id="regiao"><option value="">Selecionar</option>
+          <option>Cervical</option><option>TorÃ¡cica</option><option>Lombar</option>
+          <option>Lombossacra</option><option>Craniana</option><option>Vascular cerebral</option></select></div>
+      <div class="field"><label>Lateralidade</label>
+        <select id="lateralidade"><option value="">Selecionar</option>
+          <option>Direita</option><option>Esquerda</option><option>Bilateral</option>
+          <option>NÃ£o se aplica</option></select></div>
+      <div class="field"><label>NÃºmero de nÃ­veis</label>
+        <select id="qtd_niveis"><option value="">Selecionar</option>
+          <option value="1">1 nÃ­vel</option><option value="2">2 nÃ­veis</option>
+          <option value="3">3 nÃ­veis</option><option value="4">4 nÃ­veis</option></select></div>
+      <div class="field"><label>NÃ­veis anatÃ´micos <span class="cond">se coluna</span></label>
+        <select id="niveis_anatomicos"><option value="">Selecionar</option>
+          <option>L3-L4</option><option>L4-L5</option><option>L5-S1</option>
+          <option>L4-L5 e L5-S1</option><option>L3-L5</option>
+          <option>C4-C5</option><option>C5-C6</option><option>C6-C7</option>
+          <option>C5-C6 e C6-C7</option></select></div>
+      <div class="field"><label>Via de acesso</label>
+        <select id="via_acesso"><option value="">Selecionar</option>
+          <option>Aberta convencional</option><option>Minimamente invasiva (MIS)</option>
+          <option>EndoscÃ³pica uniportal</option><option>Endovascular</option></select></div>
+      <div class="field"><label>Data provÃ¡vel da cirurgia</label>
+        <input id="data_cirurgia" type="date"/></div>
+      <div class="field"><label>Prioridade</label>
+        <select id="prioridade"><option value="">Selecionar</option>
+          <option value="Baixa">Baixa (eletiva, sem prazo)</option>
+          <option value="Alta">Alta (sintomÃ¡tico grave)</option>
+          <option value="Urgente">Urgente (&lt;48h)</option></select></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 3 CLINICA -->
+<div class="tab-page" id="p3">
+<div class="card">
+  <div class="card-hd"><div class="card-ico">ğŸ“‹</div><div class="card-ttl">IndicaÃ§Ã£o ClÃ­nica e Justificativa</div></div>
+  <div class="card-body">
+    <div class="grid g2">
+      <div class="field"><label>DÃ©ficit neurolÃ³gico</label>
+        <select id="deficit_neuro"><option value="">Selecionar</option>
+          <option value="NÃ£o">NÃ£o</option><option value="Motor">DÃ©ficit motor</option>
+          <option value="Sensitivo">DÃ©ficit sensitivo</option>
+          <option value="Esfincteriano">Esfincteriano (urgÃªncia)</option>
+          <option value="Mielopatia">Mielopatia progressiva</option></select></div>
+      <div class="field"><label>Dor refratÃ¡ria ao tratamento conservador</label>
+        <select id="dor_refrataria"><option value="">Selecionar</option>
+          <option value="Sim">Sim</option><option value="NÃ£o">NÃ£o</option></select></div>
+      <div class="field"><label>Tratamento conservador prÃ©vio</label>
+        <select id="tto_conservador"><option value="">Selecionar</option>
+          <option value="Sim">Sim</option><option value="NÃ£o">NÃ£o</option></select></div>
+      <div class="field"><label>DuraÃ§Ã£o do tratamento conservador</label>
+        <select id="duracao_tto"><option value="">Selecionar</option>
+          <option>Menos de 6 semanas</option><option>6 a 12 semanas</option>
+          <option>Mais de 12 semanas</option><option>NÃ£o realizado (urgÃªncia)</option></select></div>
+      <div class="field"><label>Exame de imagem principal</label>
+        <select id="exame_principal"><option value="">Selecionar</option>
+          <option>RessonÃ¢ncia magnÃ©tica (RM)</option><option>TC</option>
+          <option>RM + TC</option><option>Angiografia digital</option></select></div>
+      <div class="field"><label>Achados principais da imagem</label>
+        <input id="achados_resumo" type="text" placeholder="Ex: hÃ©rnia L4-L5 com compressÃ£o radicular"/></div>
+      <div class="field full"><label>IndicaÃ§Ã£o clÃ­nica (SADT) <span class="req">*</span> <span class="auto">auto</span></label>
+        <textarea id="indicacao_clinica" rows="5"
+          placeholder="Preencha ou selecione um procedimento para auto-completarâ€¦"></textarea>
+        <span class="hint">MÃ­nimo 40 caracteres. Este texto vai para o campo 23 da guia SADT.</span></div>
+      <div class="field full"><label>Achados de imagem detalhados</label>
+        <textarea id="achados_exame" rows="3"
+          placeholder="RM lombossacra 22/03/2026 â€“ hÃ©rnia discal L4-L5 com compressÃ£o da raiz L5â€¦"></textarea></div>
+      <div class="sec">MÃ©dico Solicitante</div>
+      <div class="field"><label>Nome do mÃ©dico <span class="req">*</span></label>
+        <input id="medico_solicitante" type="text" value="Dr. JosÃ© Correia Jr." required/></div>
+      <div class="field"><label>CRM / Conselho <span class="req">*</span></label>
+        <input id="crm" type="text" placeholder="CRM/CE 000000" required/></div>
+      <div class="field"><label>CÃ³digo CBO</label>
+        <input id="cbo" type="text" placeholder="225118" value="225118"/></div>
+      <div class="field"><label>Telefone do consultÃ³rio</label>
+        <input id="tel_medico" type="text" placeholder="(88) 0000-0000"/></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 4 OPME -->
+<div class="tab-page" id="p4">
+<div class="card">
+  <div class="card-hd"><div class="card-ico">ğŸ”©</div><div class="card-ttl">OPME e Materiais Especiais</div></div>
+  <div class="card-body">
+    <div class="grid g2">
+      <div class="field"><label>Necessita OPME? <span class="req">*</span></label>
+        <select id="necessita_opme" required onchange="toggleOpme()">
+          <option value="">Selecionar</option>
+          <option value="Sim">Sim</option><option value="NÃ£o">NÃ£o</option></select></div>
+      <div class="field"><label>Necessita SADT?</label>
+        <select id="necessita_sadt"><option value="">Selecionar</option>
+          <option value="Sim">Sim</option><option value="NÃ£o">NÃ£o</option></select></div>
+    </div>
+    <div id="opme_sec" style="margin-top:14px">
+      <div class="sec" style="margin-bottom:8px">Itens OPME</div>
+      <div id="opmeRows"></div>
+      <button type="button" class="add-row" onclick="addOpme()">+ Adicionar item OPME</button>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="field full"><label>Justificativa da OPME <span class="cond">obrigatÃ³ria se OPME=Sim</span></label>
+          <textarea id="justificativa_opme" rows="4"
+            placeholder="Justificativa clÃ­nica detalhada para cada implante solicitadoâ€¦"></textarea></div>
+        <div class="field"><label>Empresa / fabricante OPME</label>
+          <input id="empresa_opme" type="text" placeholder="Ex: Medtronic, Stryker, Synthesâ€¦"/></div>
+        <div class="field"><label>SADT / Exames perioperatÃ³rios</label>
+          <textarea id="sadt_solicitado" rows="2"
+            placeholder="Hemograma, coagulograma, ECG, RM lombossacraâ€¦"></textarea></div>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="field"><label>Status inicial</label>
+        <select id="status_inicial">
+          <option value="Pendente">Pendente</option>
+          <option value="Pronto para envio">Pronto para envio</option>
+          <option value="Aguardando complemento">Aguardando complemento</option></select></div>
+      <div class="field"><label>ObservaÃ§Ãµes finais</label>
+        <textarea id="obs_finais" rows="2" placeholder="Notas adicionaisâ€¦"></textarea></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TAB 5 REVISAR -->
+<div class="tab-page" id="p5">
+<div class="card">
+  <div class="card-hd"><div class="card-ico">âœ‰ï¸</div><div class="card-ttl">Revisar e Enviar</div></div>
+  <div class="card-body">
+    <div class="info">Clique em <strong>PrÃ©-visualizar Guias</strong> para ver as guias SADT e OPME preenchidas com os dados do formulÃ¡rio. ApÃ³s revisar, confirme o envio para o Make.com.</div>
+    <div id="mini-rev"></div>
+    <div id="val-errs"></div>
+  </div>
+</div>
+</div>
+
+</form>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="nav-btns">
+    <button class="btn btn-sec" onclick="prevTab()" id="btnPrev">â† Voltar</button>
+    <button class="btn btn-sec" onclick="nextTab()" id="btnNext">AvanÃ§ar â†’</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <button class="btn btn-out" onclick="openPreview()">ğŸ“‹ PrÃ©-visualizar Guias</button>
+    <button class="btn btn-pri" onclick="trySubmit()">
+      ğŸš€ Enviar ao Make
+    </button>
+  </div>
+</div>
+
+<script>
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   CONFIG
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const WH = "https://hook.us2.make.com/yerhrppm26aylw9jj2efmapq6ny8jlif";
+
+const COLUNA_PROCS = [
+  "Microdiscectomia lombar","Laminectomia descompressiva lombar",
+  "Artrodese lombar com instrumentaÃ§Ã£o","RevisÃ£o artrodese lombar",
+  "Artrodese cervical anterior ACDF","Artroplastia cervical anterior"
+];
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   PROCEDURE DATABASE
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const PDB = {
+  "Microdiscectomia lombar":{
+    proc_id:"PROC001",cid:"M51.1",cid_h:"LesÃ£o do disco lombar â€“ M51.1",
+    cbhpm:"3.07.14.02-5",tuss:"30714021",regiao:"Lombar",via:"Minimamente invasiva (MIS)",
+    indicacao:"Paciente com lombociatalgia refratÃ¡ria a tratamento conservador por mais de 12 semanas, com dÃ©ficit neurolÃ³gico progressivo e hÃ©rnia discal L4-L5 confirmada em RM com compressÃ£o radicular.",
+    jopme:"Cage intersomÃ¡tico para restauraÃ§Ã£o da altura discal e fusÃ£o intervertebral. NecessÃ¡rio para estabilizaÃ§Ã£o segmentar e prevenÃ§Ã£o de recidiva.",
+    opme:[{d:"Cage lombar PLIF",q:1,u:"un",e:"Medtronic"}]
+  },
+  "Laminectomia descompressiva lombar":{
+    proc_id:"PROC005",cid:"M48.0",cid_h:"Estenose do canal raquidiano â€“ M48.0",
+    cbhpm:"3.07.14.04-1",regiao:"Lombar",via:"Aberta convencional",
+    indicacao:"Estenose lombar grave L3-L5 com claudicaÃ§Ã£o neurogÃªnica refratÃ¡ria a tratamento conservador por mais de 12 semanas. TC e RM confirmam estenose crÃ­tica do canal vertebral.",
+    jopme:"Sistema de parafusos pediculares transpediculares para estabilizaÃ§Ã£o segmentar pÃ³s-descompressÃ£o neural em mÃºltiplos nÃ­veis.",
+    opme:[{d:"Sistema parafusos pediculares",q:1,u:"sis",e:"Stryker"}]
+  },
+  "Artrodese lombar com instrumentaÃ§Ã£o":{
+    proc_id:"PROC005",cid:"M43.1",cid_h:"Espondilolistese â€“ M43.1",
+    cbhpm:"3.07.15.02-4",regiao:"Lombar",via:"Minimamente invasiva (MIS)",
+    indicacao:"Espondilolistese degenerativa lombar com instabilidade segmentar e radiculopatia refratÃ¡ria.",
+    jopme:"Kit artrodese lombar MIS para estabilizaÃ§Ã£o transpedicular e fusÃ£o intersomÃ¡tica.",
+    opme:[{d:"Kit artrodese lombar MIS",q:1,u:"sis",e:"Stryker"}]
+  },
+  "RevisÃ£o artrodese lombar":{
+    proc_id:"PROC006",cid:"M96.0",cid_h:"Pseudoartrose pÃ³s-fusÃ£o â€“ M96.0",
+    cbhpm:"3.07.15.03-2",regiao:"Lombossacra",via:"Aberta convencional",
+    indicacao:"Pseudoartrose de artrodese lombar prÃ©via com dor axial incapacitante e instabilidade segmentar confirmada em imagem dinÃ¢mica.",
+    jopme:"RemoÃ§Ã£o de hardware anterior com falha de fusÃ£o e reimplante de novo sistema de fixaÃ§Ã£o para consolidaÃ§Ã£o biolÃ³gica.",
+    opme:[{d:"Sistema revisÃ£o implantes lombares",q:1,u:"sis",e:"Medtronic"}]
+  },
+  "Artrodese cervical anterior ACDF":{
+    proc_id:"PROC002",cid:"M50.1",cid_h:"Discopatia cervical com radiculopatia â€“ M50.1",
+    cbhpm:"3.07.13.02-1",tuss:"30713021",regiao:"Cervical",via:"Aberta convencional",
+    indicacao:"Discopatia cervical com mielorradiculopatia refratÃ¡ria a tratamento conservador. RM cervical evidencia compressÃ£o medular com alteraÃ§Ã£o de sinal intramedular.",
+    jopme:"Cage cervical peek + placa e parafusos para estabilizaÃ§Ã£o e fusÃ£o. Sistema necessÃ¡rio para restauraÃ§Ã£o do espaÃ§o intervertebral e prevenÃ§Ã£o de pseudoartrose.",
+    opme:[{d:"Cage cervical peek",q:1,u:"un",e:"Synthes"},{d:"Placa cervical + parafusos",q:1,u:"sis",e:"Synthes"}]
+  },
+  "Artroplastia cervical anterior":{
+    proc_id:"PROC002",cid:"M50.0",cid_h:"Discopatia cervical com mielopatia â€“ M50.0",
+    cbhpm:"3.07.13.04-8",regiao:"Cervical",via:"Aberta convencional",
+    indicacao:"Discopatia cervical com mielopatia em paciente jovem, indicaÃ§Ã£o de artroplastia para preservaÃ§Ã£o do movimento segmentar.",
+    jopme:"PrÃ³tese discal cervical para substituiÃ§Ã£o do disco degenerado com preservaÃ§Ã£o da mobilidade segmentar.",
+    opme:[{d:"PrÃ³tese discal cervical",q:1,u:"un",e:"Medtronic"}]
+  },
+  "Craniotomia ressecÃ§Ã£o tumor cerebral":{
+    proc_id:"PROC003",cid:"C71.9",cid_h:"Neoplasia maligna do encÃ©falo â€“ C71.9",
+    cbhpm:"4.01.01.03-0",regiao:"Craniana",via:"Aberta convencional",
+    indicacao:"Neoplasia cerebral com efeito de massa confirmado em RM, hipertensÃ£o intracraniana e deterioraÃ§Ã£o neurolÃ³gica progressiva. RessecÃ§Ã£o microcirÃºrgica guiada por neuronavegaÃ§Ã£o indicada.",
+    jopme:"Sistema de hemostasia cirÃºrgica para controle intraoperatÃ³rio. NeuronavegaÃ§Ã£o para mÃ¡xima ressecÃ§Ã£o segura da neoplasia.",
+    opme:[{d:"Sistema hemostasia cirÃºrgica",q:1,u:"un",e:"Codman"}]
+  },
+  "DerivaÃ§Ã£o ventriculoperitoneal":{
+    proc_id:"PROC003",cid:"G91.1",cid_h:"Hidrocefalia obstrutiva â€“ G91.1",
+    cbhpm:"4.01.01.05-7",regiao:"Craniana",via:"Aberta convencional",
+    indicacao:"Hidrocefalia progressiva com sintomas de hipertensÃ£o intracraniana refratÃ¡ria ao tratamento clÃ­nico.",
+    jopme:"Sistema de derivaÃ§Ã£o ventriculoperitoneal (DVP) com vÃ¡lvula programÃ¡vel para controle da pressÃ£o intracraniana.",
+    opme:[{d:"Sistema DVP com vÃ¡lvula programÃ¡vel",q:1,u:"sis",e:"Codman"}]
+  },
+  "Angiografia cerebral diagnÃ³stica":{
+    proc_id:"PROC003",cid:"I67.1",cid_h:"Aneurisma cerebral sem rotura â€“ I67.1",
+    cbhpm:"4.06.01.01-0",regiao:"Vascular cerebral",via:"Endovascular",
+    indicacao:"InvestigaÃ§Ã£o de alteraÃ§Ãµes vasculares cerebrais, incluindo suspeita de aneurisma intracraniano, estenoses arteriais, malformaÃ§Ãµes arteriovenosas ou outras anomalias vasculares.",
+    jopme:"Cateter diagnÃ³stico e material endovascular para investigaÃ§Ã£o angiogrÃ¡fica cerebral.",
+    opme:[{d:"Introdutor valvulado 5Fr x 11cm",q:1,u:"un",e:"Cordis"},
+          {d:"Fio guia hidrofilico 0.035 x 180cm",q:1,u:"un",e:"Terumo"},
+          {d:"Cateter Simmons 2 - 5Fr",q:1,u:"un",e:"Merit"},
+          {d:"Cateter vertebral - 5Fr",q:1,u:"un",e:"Merit"},
+          {d:"Cateter Pig Tail 5Fr",q:1,u:"un",e:"Merit"}]
+  },
+  "EmbolizaÃ§Ã£o endovascular de aneurisma":{
+    proc_id:"PROC003",cid:"I67.1",cid_h:"Aneurisma cerebral sem rotura â€“ I67.1",
+    cbhpm:"4.06.01.02-9",regiao:"Vascular cerebral",via:"Endovascular",
+    indicacao:"Aneurisma cerebral com alto risco de rotura (diÃ¢metro > 7mm, morfologia irregular). EmbolizaÃ§Ã£o endovascular com coils indicada.",
+    jopme:"Coils de embolizaÃ§Ã£o cerebral para oclusÃ£o segura do aneurisma com preservaÃ§Ã£o do vaso parental.",
+    opme:[{d:"Coils de embolizaÃ§Ã£o cerebral",q:3,u:"un",e:"Stryker Neurovascular"}]
+  }
+};
+
+const ANS={
+  "Unimed":"303860","Bradesco SaÃºde":"005711","SulAmÃ©rica":"006246",
+  "Amil":"326305","Hapvida":"368253","NotreDame IntermÃ©dica":"359017","Particular":"N/A"
+};
+
+const QC={
+  PROC001:{nome_paciente:"Carlos Eduardo Hernia",data_nascimento:"1972-05-18",
+    sexo:"Masculino",cpf:"321.654.987-00",telefone:"(88) 99801-2345",
+    convenio:"Unimed",numero_carteira:"9876543210001",carater:"E",
+    hospital:"Hospital Santo AntÃ´nio â€” Juazeiro do Norte",
+    procedimento:"Microdiscectomia lombar",lateralidade:"Direita",
+    niveis_anatomicos:"L4-L5",deficit_neuro:"Motor",dor_refrataria:"Sim",
+    tto_conservador:"Sim",duracao_tto:"Mais de 12 semanas",
+    exame_principal:"RessonÃ¢ncia magnÃ©tica (RM)",necessita_opme:"Sim",
+    necessita_sadt:"Sim",prioridade:"Alta",status_inicial:"Pronto para envio",
+    medico_solicitante:"Dr. JosÃ© Correia Jr.",crm:"CRM/CE 012345"},
+  PROC002:{nome_paciente:"Maria Aparecida Cervical",data_nascimento:"1965-11-30",
+    sexo:"Feminino",cpf:"654.321.098-11",telefone:"(88) 99702-5566",
+    convenio:"Bradesco SaÃºde",numero_carteira:"1234567890002",carater:"E",
+    hospital:"Hospital Santo AntÃ´nio â€” Juazeiro do Norte",
+    procedimento:"Artrodese cervical anterior ACDF",lateralidade:"Bilateral",
+    niveis_anatomicos:"C5-C6",deficit_neuro:"Mielopatia",dor_refrataria:"Sim",
+    tto_conservador:"Sim",duracao_tto:"6 a 12 semanas",
+    exame_principal:"RM + TC",necessita_opme:"Sim",
+    necessita_sadt:"Sim",prioridade:"Alta",
+    medico_solicitante:"Dr. JosÃ© Correia Jr.",crm:"CRM/CE 012345"},
+  PROC003:{nome_paciente:"JoÃ£o Batista Tumor",data_nascimento:"1958-03-22",
+    sexo:"Masculino",cpf:"111.222.333-44",telefone:"(88) 98800-1122",
+    convenio:"Unimed",numero_carteira:"5555666677778",carater:"U",
+    hospital:"Hospital Santo AntÃ´nio â€” Juazeiro do Norte",
+    procedimento:"Craniotomia ressecÃ§Ã£o tumor cerebral",
+    deficit_neuro:"Mielopatia",dor_refrataria:"Sim",
+    exame_principal:"RM + TC",necessita_opme:"Sim",necessita_sadt:"Sim",
+    prioridade:"Urgente",status_inicial:"Pronto para envio",
+    medico_solicitante:"Dr. JosÃ© Correia Jr.",crm:"CRM/CE 012345"},
+  PROC005:{nome_paciente:"Ana Lima Estenose",data_nascimento:"1950-07-14",
+    sexo:"Feminino",cpf:"987.654.321-00",telefone:"(88) 99603-8877",
+    convenio:"SulAmÃ©rica",numero_carteira:"9988776655443",carater:"E",
+    hospital:"Hospital do CoraÃ§Ã£o do Cariri",
+    procedimento:"Laminectomia descompressiva lombar",lateralidade:"Bilateral",
+    niveis_anatomicos:"L4-L5 e L5-S1",deficit_neuro:"Motor",dor_refrataria:"Sim",
+    tto_conservador:"Sim",duracao_tto:"Mais de 12 semanas",
+    exame_principal:"RessonÃ¢ncia magnÃ©tica (RM)",necessita_opme:"Sim",necessita_sadt:"Sim",
+    prioridade:"Alta",medico_solicitante:"Dr. JosÃ© Correia Jr.",crm:"CRM/CE 012345"},
+  PROC006:{nome_paciente:"Pedro RevisÃ£o Pseudoartrose",data_nascimento:"1961-09-05",
+    sexo:"Masculino",cpf:"444.555.666-77",telefone:"(88) 99500-4433",
+    convenio:"Amil",numero_carteira:"3322114455667",carater:"E",
+    hospital:"Hospital Santo AntÃ´nio â€” Juazeiro do Norte",
+    procedimento:"RevisÃ£o artrodese lombar",deficit_neuro:"Motor",dor_refrataria:"Sim",
+    tto_conservador:"Sim",duracao_tto:"Mais de 12 semanas",
+    exame_principal:"RM + TC",necessita_opme:"Sim",necessita_sadt:"Sim",
+    prioridade:"Alta",medico_solicitante:"Dr. JosÃ© Correia Jr.",crm:"CRM/CE 012345"}
+};
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   NAVIGATION
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+let cur=0;
+function goTab(n){
+  if(n<0||n>5)return;
+  document.querySelectorAll('.tab-page').forEach((p,i)=>p.classList.toggle('active',i===n));
+  document.querySelectorAll('.step').forEach((s,i)=>{
+    s.classList.remove('active','done');
+    if(i<n)s.classList.add('done');
+    if(i===n)s.classList.add('active');
+  });
+  cur=n;
+  document.getElementById('btnPrev').disabled=n===0;
+  document.getElementById('btnPrev').style.opacity=n===0?'.4':'1';
+  document.getElementById('btnNext').style.display=n===5?'none':'';
+  if(n===5)buildMiniRev();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextTab(){goTab(cur+1)}
+function prevTab(){goTab(cur-1)}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   AUTO-FILL FROM PROCEDURE
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function autoProc(){
+  const proc=g('procedimento');
+  const d=PDB[proc];
+  // show/hide "outro" field
+  const ow=document.getElementById('proc_outro_wrap');
+  ow.style.display=proc==='Outro'?'':'none';
+  if(!d)return;
+  sv('codigo_proc',d.proc_id);
+  sv('cid_principal',d.cid);
+  sv('cod_cbhpm',d.cbhpm||'');
+  sv('cod_tuss',d.tuss||'');
+  if(d.regiao)sv('regiao',d.regiao);
+  if(d.via)sv('via_acesso',d.via);
+  if(d.indicacao)sv('indicacao_clinica',d.indicacao);
+  if(d.jopme)sv('justificativa_opme',d.jopme);
+  document.getElementById('cidHint').textContent=d.cid_h||'';
+  ['codigo_proc','cid_principal','cod_cbhpm'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.add('af');
+  });
+  document.getElementById('opmeRows').innerHTML='';
+  (d.opme||[]).forEach(o=>addOpme(o.d,o.q,o.u,o.e));
+  if(d.opme&&d.opme.length){
+    sv('necessita_opme','Sim');
+    sv('empresa_opme',d.opme[0].e||'');
+  }
+  toast('âœ… Auto-preenchido: '+proc,'ok');
+}
+
+function fillANS(){const c=g('convenio');sv('codigo_ans',ANS[c]||'');}
+
+function calcAge(){
+  const dob=g('data_nascimento');
+  if(!dob)return;
+  const today=new Date(),birth=new Date(dob);
+  let age=today.getFullYear()-birth.getFullYear();
+  const m=today.getMonth()-birth.getMonth();
+  if(m<0||(m===0&&today.getDate()<birth.getDate()))age--;
+  sv('idade',age+' anos');
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   QUICK FILL
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function qf(id){
+  const data=QC[id];if(!data)return;
+  Object.entries(data).forEach(([k,v])=>sv(k,v));
+  calcAge();fillANS();autoProc();
+  goTab(0);saveDraft();
+  toast('âš¡ Caso '+id+' carregado!','ok');
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   OPME ROWS
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+let opmeN=0;
+function addOpme(desc='',qtd=1,un='un',emp=''){
+  opmeN++;const id='or'+opmeN;
+  const row=document.createElement('div');
+  row.className='opme-row';row.id=id;
+  row.innerHTML=`
+    <div class="field"><label>DescriÃ§Ã£o</label>
+      <input type="text" id="${id}d" value="${desc}" placeholder="Ex: Cage lombar PLIF"/></div>
+    <div class="field"><label>Fabricante</label>
+      <input type="text" id="${id}e" value="${emp}" placeholder="Ex: Medtronic"/></div>
+    <div class="field"><label>Qtd</label>
+      <input type="number" id="${id}q" value="${qtd}" min="1" max="99"/></div>
+    <div class="field"><label>Un</label>
+      <select id="${id}u">
+        ${['un','par','sis','cx','fr'].map(u=>`<option ${u===un?'selected':''}>${u}</option>`).join('')}
+      </select></div>
+    <button type="button" class="del" onclick="document.getElementById('${id}').remove()">âœ•</button>`;
+  document.getElementById('opmeRows').appendChild(row);
+}
+
+function toggleOpme(){
+  const v=g('necessita_opme');
+  document.getElementById('opme_sec').style.opacity=v==='NÃ£o'?'.45':'1';
+}
+
+function getOpmeItems(){
+  const items=[];
+  document.querySelectorAll('[id^="or"][id$="d"]').forEach(el=>{
+    const b=el.id.slice(0,-1);
+    items.push({
+      descricao:el.value,
+      empresa:document.getElementById(b+'e')?.value||'',
+      qtd:Number(document.getElementById(b+'q')?.value)||1,
+      unidade:document.getElementById(b+'u')?.value||'un'
+    });
+  });
+  return items;
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   COLLECT DATA
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function collect(){
+  const opme=getOpmeItems();
+  const caratText={'E':'Eletivo','U':'UrgÃªncia','X':'EmergÃªncia'};
+  return {
+    nome_paciente:g('nome_paciente'),
+    data_nascimento:g('data_nascimento'),
+    idade:g('idade'),
+    sexo:g('sexo'),
+    cpf:g('cpf'),
+    telefone:g('telefone'),
+    email:g('email'),
+    cns:g('cns'),
+    comorbidades:g('comorbidades'),
+    convenio:g('convenio'),
+    codigo_ans:g('codigo_ans'),
+    numero_carteira:g('numero_carteira'),
+    validade_carteira:g('validade_carteira'),
+    carater:caratText[g('carater')]||g('carater'),
+    carater_cod:g('carater'),
+    tipo_guia:g('tipo_guia'),
+    hospital:g('hospital'),
+    regime:g('regime'),
+    obs_convenio:g('obs_convenio'),
+    procedimento:g('procedimento')||g('proc_outro'),
+    codigo_proc:g('codigo_proc'),
+    cids_principais:g('cid_principal'),
+    cid2:g('cid2'),
+    cod_cbhpm:g('cod_cbhpm'),
+    cod_tuss:g('cod_tuss'),
+    regiao:g('regiao'),
+    lateralidade:g('lateralidade'),
+    qtd_niveis:g('qtd_niveis'),
+    niveis_anatomicos:g('niveis_anatomicos'),
+    via_acesso:g('via_acesso'),
+    data_cirurgia:g('data_cirurgia'),
+    prioridade:g('prioridade'),
+    deficit_neuro:g('deficit_neuro'),
+    dor_refrataria:g('dor_refrataria'),
+    tto_conservador:g('tto_conservador'),
+    duracao_tto:g('duracao_tto'),
+    exame_principal:g('exame_principal'),
+    achados_resumo:g('achados_resumo'),
+    indicacao_clinica:g('indicacao_clinica'),
+    achados_exame:g('achados_exame'),
+    medico_solicitante:g('medico_solicitante'),
+    crm:g('crm'),
+    cbo:g('cbo'),
+    tel_medico:g('tel_medico'),
+    necessita_opme:g('necessita_opme'),
+    necessita_sadt:g('necessita_sadt'),
+    opme_items:opme,
+    opme_1:opme[0]?.descricao||'',
+    opme_2:opme[1]?.descricao||'',
+    opme_3:opme[2]?.descricao||'',
+    empresa_opme:g('empresa_opme'),
+    justificativa_opme:g('justificativa_opme'),
+    sadt_solicitado:g('sadt_solicitado'),
+    status_inicial:g('status_inicial'),
+    obs_finais:g('obs_finais'),
+    data_solicitacao:new Date().toLocaleDateString('pt-BR'),
+    timestamp_iso:new Date().toISOString()
+  };
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   VALIDATION
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function validate(){
+  const d=collect();
+  const errs=[];
+  const mark=id=>{const el=document.getElementById(id);if(el)el.classList.add('err')};
+  document.querySelectorAll('.err').forEach(el=>el.classList.remove('err'));
+
+  // Always required
+  if(!d.nome_paciente.trim()){errs.push('Nome do paciente');mark('nome_paciente')}
+  if(!d.convenio){errs.push('Operadora / convÃªnio');mark('convenio')}
+  if(!d.carater_cod){errs.push('CarÃ¡ter do atendimento');mark('carater')}
+  if(!d.hospital){errs.push('Hospital / clÃ­nica');mark('hospital')}
+  if(!d.procedimento){errs.push('Procedimento principal');mark('procedimento')}
+  if(!d.cids_principais.trim()){errs.push('CID-10 principal');mark('cid_principal')}
+  if(!d.indicacao_clinica.trim()||d.indicacao_clinica.length<40){
+    errs.push('IndicaÃ§Ã£o clÃ­nica (mÃ­nimo 40 caracteres)');mark('indicacao_clinica')}
+  if(!d.medico_solicitante.trim()){errs.push('Nome do mÃ©dico solicitante');mark('medico_solicitante')}
+  if(!d.crm.trim()){errs.push('CRM / conselho');mark('crm')}
+
+  // Conditional: coluna â†’ niveis_anatomicos
+  if(COLUNA_PROCS.includes(d.procedimento)&&!d.niveis_anatomicos){
+    errs.push('NÃ­veis anatÃ´micos (obrigatÃ³rio para procedimentos de coluna)');mark('niveis_anatomicos')}
+
+  // Conditional: OPME=Sim â†’ pelo menos 1 item + justificativa
+  if(d.necessita_opme==='Sim'){
+    const items=getOpmeItems().filter(o=>o.descricao.trim());
+    if(items.length===0){
+      errs.push('Ao menos 1 item OPME (quando OPME = Sim)');
+      document.getElementById('opmeRows').style.outline='2px solid var(--r1)';
+      setTimeout(()=>document.getElementById('opmeRows').style.outline='',3000);
+    }
+    if(!d.justificativa_opme.trim()){
+      errs.push('Justificativa da OPME');mark('justificativa_opme')}
+  }
+
+  return errs;
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   MINI REVIEW
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function buildMiniRev(){
+  const d=collect();
+  const errs=validate();
+  const t=(title,val,sub)=>`<div class="tile">
+    <div class="tile-t">${title}</div>
+    <div class="tile-v">${val||'â€”'}</div>
+    ${sub?`<div class="tile-s">${sub}</div>`:''}
+  </div>`;
+  let html=`<div class="tiles">
+    ${t('ğŸ§‘â€âš•ï¸ Paciente',d.nome_paciente,d.idade)}
+    ${t('ğŸ¥ ConvÃªnio',d.convenio,d.carater)}
+    ${t('ğŸ”¬ Procedimento',(d.procedimento||'').substring(0,32),d.cids_principais)}
+    ${t('ğŸ”© OPME',d.opme_1||'â€”',d.empresa_opme)}
+    ${t('ğŸ“‹ IndicaÃ§Ã£o',(d.indicacao_clinica||'').substring(0,50)+'â€¦','')}
+    ${t('âœ‰ï¸ MÃ©dico',d.medico_solicitante,d.crm)}
+  </div>`;
+  if(errs.length){
+    html+=`<div class="err-box"><div class="err-ttl">âš ï¸ ${errs.length} campo(s) pendente(s):</div><ul>${errs.map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
+  } else {
+    html+=`<div class="ok-box">âœ… Todos os campos obrigatÃ³rios preenchidos. Pronto para envio!</div>`;
+  }
+  document.getElementById('mini-rev').innerHTML=html;
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   RENDER SADT GUIA (faithful to Unimed template)
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function renderSADT(d){
+  const proc=d.procedimento||'PROCEDIMENTO';
+  const carLabel={E:'E â€“ Eletivo',U:'U â€“ UrgÃªncia',X:'X â€“ EmergÃªncia'};
+  const car=carLabel[d.carater_cod]||d.carater||'';
+  return `
+<div class="guia-wrap">
+<table class="guia-table">
+<tr>
+  <td class="logo-cell" rowspan="2">
+    <div class="logo-uni"><div class="logo-u">Unimed</div></div>
+    <div class="logo-cariri" style="margin-top:3px">Cariri</div>
+  </td>
+  <td class="guia-title-cell" rowspan="2" style="font-size:11px;font-weight:700;text-align:center">
+    GUIA DE SERVIÃ‡O PROFISSIONAL / SERVIÃ‡O AUXILIAR DE<br>DIAGNÃ“STICO E TERAPIA â€“ SP/SADT
+  </td>
+  <td style="text-align:right;font-size:8px;font-weight:700;width:200px;vertical-align:top;padding:2px 4px">
+    2â€“ NÂº Guia no Prestador
+  </td>
+</tr>
+<tr>
+  <td style="font-size:9px;font-weight:700;text-align:right;padding:2px 4px">
+    ${proc.toUpperCase()}
+  </td>
+</tr>
+<tr>
+  <td colspan="2" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:110px">
+          <span class="fn">1 â€“ Registro ANS</span>
+          <span class="fv">${d.codigo_ans||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">3 â€“ NÃºmero da Guia Principal</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+  <td style="border:1px solid #000;padding:1px 3px">
+    <span class="fn">7 â€“ NÃºmero da Guia AtribuÃ­do pela Operadora</span>
+    <span class="fv">&nbsp;</span>
+  </td>
+</tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:130px">
+          <span class="fn">4 â€“ Data da AutorizaÃ§Ã£o</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">5 â€“ Senha</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:140px">
+          <span class="fn">6 â€“ Data de Validade da Senha</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- DADOS DO BENEFICIÃRIO -->
+<tr><td colspan="3" class="sh">Dados do BeneficiÃ¡rio</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:230px">
+          <span class="fn">8 â€“ NÃºmero da Carteira</span>
+          <span class="fv">${d.numero_carteira||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:130px">
+          <span class="fn">9 â€“ Validade da Carteira</span>
+          <span class="fv">${d.validade_carteira||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">10 â€“ Nome</span>
+          <span class="fv">${d.nome_paciente||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:180px">
+          <span class="fn">11 â€“ CartÃ£o Nacional de SaÃºde</span>
+          <span class="fv">${d.cns||''}</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- DADOS DO SOLICITANTE -->
+<tr><td colspan="3" class="sh">Dados do Solicitante</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:160px">
+          <span class="fn">13 â€“ CÃ³digo na Operadora</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">14 â€“ Nome do Contratado</span>
+          <span class="fv">${d.hospital||''}</span>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="border:1px solid #000;padding:1px 3px">
+          <table style="width:100%;border-collapse:collapse">
+            <tr>
+              <td style="border:1px solid #000;padding:1px 3px">
+                <span class="fn">15 â€“ Nome do Profissional Solicitante</span>
+                <span class="fv">${d.medico_solicitante||''}</span>
+              </td>
+              <td style="border:1px solid #000;padding:1px 3px;width:80px">
+                <span class="fn">16 â€“ Conselho</span>
+                <span class="fv">CRM</span>
+              </td>
+              <td style="border:1px solid #000;padding:1px 3px;width:160px">
+                <span class="fn">17 â€“ NÃºmero no Conselho</span>
+                <span class="fv">${d.crm||''}</span>
+              </td>
+              <td style="border:1px solid #000;padding:1px 3px;width:40px">
+                <span class="fn">18 â€“ UF</span>
+                <span class="fv">CE</span>
+              </td>
+              <td style="border:1px solid #000;padding:1px 3px;width:80px">
+                <span class="fn">19 â€“ CBO</span>
+                <span class="fv">${d.cbo||'225118'}</span>
+              </td>
+              <td style="border:1px solid #000;padding:1px 3px;width:140px">
+                <span class="fn">20 â€“ Assinatura</span>
+                <span class="sig-area"></span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- DADOS DA SOLICITAÃ‡ÃƒO -->
+<tr><td colspan="3" class="sh">Dados da SolicitaÃ§Ã£o / Procedimentos e Exames Solicitados</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:60px">
+          <span class="fn">21 â€“ CarÃ¡ter</span>
+          <span class="fv">${d.carater_cod||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:130px">
+          <span class="fn">22 â€“ Data da SolicitaÃ§Ã£o</span>
+          <span class="fv">${d.data_solicitacao||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">23 â€“ IndicaÃ§Ã£o ClÃ­nica</span>
+          <span class="fv sm">${d.indicacao_clinica||''}</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr style="background:#eee">
+        <td style="border:1px solid #000;padding:1px 3px;width:45px;font-size:7.5px;font-weight:700">24-Tabela</td>
+        <td style="border:1px solid #000;padding:1px 3px;width:110px;font-size:7.5px;font-weight:700">25-CÃ³digo do Procedimento</td>
+        <td style="border:1px solid #000;padding:1px 3px;font-size:7.5px;font-weight:700">26-DescriÃ§Ã£o</td>
+        <td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">27-Qtde.Solic.</td>
+        <td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">28-Qtde.Aut.</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td>
+        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${d.cod_cbhpm||''}</span></td>
+        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${d.procedimento||''}</span></td>
+        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">1</span></td>
+        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td>
+      </tr>
+      ${[2,3,4,5].map(()=>`<tr>
+        <td style="border:1px solid #000;padding:1px 3px;height:16px"></td>
+        <td style="border:1px solid #000;padding:1px 3px"></td>
+        <td style="border:1px solid #000;padding:1px 3px"></td>
+        <td style="border:1px solid #000;padding:1px 3px"></td>
+        <td style="border:1px solid #000;padding:1px 3px"></td>
+      </tr>`).join('')}
+    </table>
+  </td>
+</tr>
+<!-- DADOS DO CONTRATADO EXECUTANTE -->
+<tr><td colspan="3" class="sh">Dados do Contratado Executante</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:160px">
+          <span class="fn">29 â€“ CÃ³digo na Operadora</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">30 â€“ Nome do Contratado</span>
+          <span class="fv">${d.hospital||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:120px">
+          <span class="fn">31 â€“ CÃ³digo CNES</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- DADOS DO ATENDIMENTO -->
+<tr><td colspan="3" class="sh">Dados do Atendimento</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:120px">
+          <span class="fn">32 â€“ Tipo de Atendimento</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:160px">
+          <span class="fn">33 â€“ IndicaÃ§Ã£o de Acidente</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:100px">
+          <span class="fn">34 â€“ Tipo de Consulta</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">35 â€“ Motivo de Encerramento</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- OBSERVAÃ‡ÃƒO -->
+<tr>
+  <td colspan="3" style="border:1px solid #000;padding:1px 3px;height:50px">
+    <span class="fn">58 â€“ ObservaÃ§Ã£o / Justificativa</span>
+    <span class="fv sm">${d.obs_finais||d.achados_exame||''}</span>
+  </td>
+</tr>
+<!-- TOTAIS -->
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:14%">
+          <span class="fn">59 â€“ Total Procedimentos (R$)</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:14%">
+          <span class="fn">60 â€“ Total Taxas e AluguÃ©is (R$)</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:14%">
+          <span class="fn">61 â€“ Total Materiais (R$)</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:14%">
+          <span class="fn">62 â€“ Total OPME (R$)</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:14%">
+          <span class="fn">63 â€“ Total Medicamentos (R$)</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:14%;background:#f0f0f0">
+          <span class="fn">65 â€“ Total Geral (R$)</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- ASSINATURAS -->
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:2px 3px;height:36px;width:33%">
+          <span class="fn">66 â€“ Assinatura do ResponsÃ¡vel pela AutorizaÃ§Ã£o</span>
+          <span class="sig-area"></span>
+        </td>
+        <td style="border:1px solid #000;padding:2px 3px;width:33%">
+          <span class="fn">67 â€“ Assinatura do BeneficiÃ¡rio ou ResponsÃ¡vel</span>
+          <span class="sig-area"></span>
+        </td>
+        <td style="border:1px solid #000;padding:2px 3px">
+          <span class="fn">68 â€“ Assinatura do Contratado</span>
+          <span class="sig-area"></span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+</div>`;
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   RENDER OPME GUIA
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function renderOPME(d){
+  const opmeItems=d.opme_items||[];
+  const rows=['01','02','03','04','05','06'];
+  return `
+<div class="guia-wrap" style="margin-top:10px">
+<table class="guia-table">
+<tr>
+  <td class="logo-cell" rowspan="2">
+    <div class="logo-uni"><div class="logo-u">Unimed</div></div>
+    <div class="logo-cariri" style="margin-top:3px">Cariri</div>
+  </td>
+  <td class="guia-title-cell" rowspan="2" style="font-size:11px;font-weight:700;text-align:center">
+    ANEXO DE SOLICITAÃ‡ÃƒO DE Ã“RTESES, PRÃ“TESES E<br>MATERIAIS ESPECIAIS â€“ OPME
+  </td>
+  <td style="text-align:right;font-size:8px;font-weight:700;width:200px;vertical-align:bottom;padding:2px 4px">
+    ${(d.procedimento||'').toUpperCase()}
+  </td>
+</tr>
+<tr>
+  <td style="padding:1px 3px">
+    <span class="fn">2 â€“ NÂº Guia no Prestador</span>
+    <span class="fv">&nbsp;</span>
+  </td>
+</tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:100px">
+          <span class="fn">1 â€“ Registro ANS</span>
+          <span class="fv">${d.codigo_ans||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">3 â€“ NÃºmero da Guia Referenciada</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:100px">
+          <span class="fn">4 â€“ Senha</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:130px">
+          <span class="fn">5 â€“ Data da AutorizaÃ§Ã£o</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:160px">
+          <span class="fn">6 â€“ NÂº Guia AtribuÃ­do pela Operadora</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- BENEFICIÃRIO -->
+<tr><td colspan="3" class="sh">Dados do BeneficiÃ¡rio</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:230px">
+          <span class="fn">7 â€“ NÃºmero da Carteira</span>
+          <span class="fv">${d.numero_carteira||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">8 â€“ Nome</span>
+          <span class="fv">${d.nome_paciente||''}</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- PROFISSIONAL -->
+<tr><td colspan="3" class="sh">Dados do Profissional Solicitante</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">9 â€“ Nome do Profissional Solicitante</span>
+          <span class="fv">${d.medico_solicitante||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:200px">
+          <span class="fn">10 â€“ Telefone</span>
+          <span class="fv">${d.tel_medico||d.telefone||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:200px">
+          <span class="fn">11 â€“ E-mail</span>
+          <span class="fv">${d.email||''}</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<!-- DADOS DA CIRURGIA -->
+<tr><td colspan="3" class="sh">Dados da Cirurgia</td></tr>
+<tr>
+  <td colspan="3" style="border:1px solid #000;padding:3px 4px;min-height:80px">
+    <span class="fn">12 â€“ Justificativa TÃ©cnica</span>
+    <span class="fv sm" style="min-height:60px;display:block">${d.justificativa_opme||d.indicacao_clinica||''}</span>
+  </td>
+</tr>
+<!-- OPME SOLICITADAS -->
+<tr><td colspan="3" class="sh">OPME Solicitadas</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table class="opme-tbl">
+      <tr>
+        <td style="width:25px" class="th">NÂº</td>
+        <td style="width:45px" class="th">13-Tabela</td>
+        <td style="width:120px" class="th">14-CÃ³digo do Material</td>
+        <td class="th">15-DescriÃ§Ã£o</td>
+        <td style="width:30px" class="th">16-Opc</td>
+        <td style="width:55px" class="th">17-Qtde Sol.</td>
+        <td style="width:70px" class="th">18-VU Sol. (R$)</td>
+        <td style="width:55px" class="th">19-Qtde Aut.</td>
+        <td style="width:70px" class="th">20-VU Aut. (R$)</td>
+      </tr>
+      ${rows.map((r,i)=>{
+        const item=opmeItems[i];
+        return `<tr>
+          <td style="font-weight:700">${r}</td>
+          <td></td>
+          <td></td>
+          <td><span style="font-size:10px;font-weight:700">${item?item.descricao:''}</span></td>
+          <td></td>
+          <td style="font-weight:700">${item?item.qtd:''}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr style="height:12px">
+          <td></td>
+          <td colspan="2" style="font-size:8px;color:#555">${item?'Reg. ANVISA:':''}</td>
+          <td colspan="3" style="font-size:8px;color:#555">${item?'Ref. fabricante:':''}</td>
+          <td colspan="3" style="font-size:8px;color:#555">${item?'NÂº AF:':''}</td>
+        </tr>`;
+      }).join('')}
+    </table>
+  </td>
+</tr>
+<!-- ESPECIFICAÃ‡ÃƒO / OBS -->
+<tr>
+  <td colspan="3" style="border:1px solid #000;padding:2px 4px;min-height:40px">
+    <span class="fn">24 â€“ EspecificaÃ§Ã£o do Material</span>
+    <span class="fv sm">${d.obs_finais||''}</span>
+  </td>
+</tr>
+<tr>
+  <td colspan="3" style="border:1px solid #000;padding:2px 4px;min-height:40px">
+    <span class="fn">25 â€“ ObservaÃ§Ã£o / Justificativa</span>
+    <span class="fv sm">${d.justificativa_opme||''}</span>
+  </td>
+</tr>
+<!-- ASSINATURAS -->
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:150px">
+          <span class="fn">26 â€“ Data da SolicitaÃ§Ã£o</span>
+          <span class="fv">${d.data_solicitacao||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:2px 4px;height:36px">
+          <span class="fn">27 â€“ Assinatura do Profissional Solicitante</span>
+          <span class="sig-area"></span>
+        </td>
+        <td style="border:1px solid #000;padding:2px 4px">
+          <span class="fn">28 â€“ Assinatura do ResponsÃ¡vel pela AutorizaÃ§Ã£o</span>
+          <span class="sig-area"></span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+</div>`;
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   PREVIEW MODAL
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function openPreview(){
+  const d=collect();
+  document.getElementById('sadt-render').innerHTML=renderSADT(d);
+  document.getElementById('opme-render').innerHTML=renderOPME(d);
+  document.getElementById('dados-render').textContent=JSON.stringify(d,null,2);
+  openModal('pvModal');
+}
+
+function showPTab(pageId,el){
+  document.querySelectorAll('.ppage').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  el.classList.add('active');
+}
+
+function printGuia(which){
+  const html = which==='sadt'
+    ? document.getElementById('sadt-render').innerHTML
+    : document.getElementById('opme-render').innerHTML;
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>Guia ${which.toUpperCase()} â€“ NEUROAUTH</title>
+    <style>
+      body{margin:10px;font-family:Arial,sans-serif}
+      table{border-collapse:collapse;width:100%}
+      td,th{border:1px solid #000;padding:1px 3px;font-size:9px;vertical-align:top}
+      .fn{font-size:7px;display:block;margin-bottom:1px}
+      .fv{font-size:10px;font-weight:700;min-height:12px;display:block}
+      .fv.sm{font-size:9px}
+      .sh{background:#d0d0d0;font-weight:700;font-size:8px;padding:2px 4px}
+      .logo-u{background:#1f4e79;color:#fff;padding:2px 6px;font-weight:900;font-style:italic}
+      .sig-area{min-height:24px;display:block9border-bottom:1px solid #555}
+      .opme-tbl td,.opme-tbl th{font-size:8px}
+      .logo-uni{display:flex;align-items:center;gap:4px}
+    </style>
+    </head><body>${html}</body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),600);
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   SUBMIT
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function trySubmit(){
+  const errs=validate();
+  if(errs.length){
+    toast(`âš ï¸ ${errs.length} campo(s) obrigatÃ³rio(s) pendente(s)`,'er');
+    goTab(5);
+    return;
+  }
+  openPreview();
+}
+
+apync function confirmedSend(){
+  const sp=document.getElementById('sp');
+  const btn=document.getElementById('confirmSendBtn');
+  sp.classList.add('on');btn.disabled=true;
+  const d=collect();
+  try{
+    const r=await fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});
+    sp.classList.remove('on');btn.disabled=false;
+    if(r.ok){
+      closeModal('pvModal');
+      toast('ğŸ‰ Enviado! Documento sendo gerado no Make.comâ€¦','ok');
+      localStorage.removeItem('neuroauth_draft');
+    } else {
+      throw new Error('HTTP '+r.status);
+    }
+  } catch(e){
+    sp.classList.remove('on');btn.disabled=false;
+    toast('âŒ Erro: '+e.message,'er');
+  }
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   WEBHOOK TEST
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+async function testWebhook(){
+  const dot=document.getElementById('wh-dot');
+  const lbl=document.getElementById('wh-lbl');
+  lbl.textContent='Testandoâ€¦';
+  try{
+    const r=await fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({_test:true,ts:new Date().toISOString()})});
+    if(r.ok||r.status===200){
+      dot.className='dot ok';lbl.textContent='Webhook ativo';
+      toast('âœ… Webhook respondeu OK','ok');
+    } else {
+      throw new Error('HTTP '+r.status);
+    }
+  } catch(e){
+    dot.className='dot';lbl.textContent='Webhook â€” erro';
+    toast('âš ï¸ Webhook: '+e.message,'er');
+  }
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   DRAFT
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function saveDraft(){
+  try{localStorage.setItem('neuroauth_draft',JSON.stringify(collect()));toast('ğŸ’¾ Rascunho salvo');}catch(e){}
+}
+
+function restoreDraft(){
+  try{
+    const raw=localStorage.getItem('neuroauth_draft');if(!raw)return;
+    const d=JSON.parse(raw);
+    const flds=['nome_paciente','data_nascimento','sexo','cpf','telefone','email','cns','comorbidades',
+      'convenio','numero_carteira','validade_carteira','carater','tipo_guia','hospital','regime','obs_convenio',
+      'procedimento','cid2','cod_tuss','regiao','lateralidade','qtd_niveis','niveis_anatomicos',
+      'via_acesso','data_cirurgia','prioridade','deficit_neuro','dor_refrataria','tto_conservador',
+      'duracao_tto','exame_principal','achados_resumo','indicacao_clinica','achados_exame',
+      'medico_solicitante','crm','cbo','tel_medico','necessita_opme','necessita_sadt',
+      'empresa_opme','justificativa_opme','sadt_solicitado','status_inicial','obs_finais'];
+    flds.forEach(id=>{if(d[id]!==undefined)sv(id,d[id])});
+    if(d.cids_principais)sv('cid_principal',d.cids_principais);
+    if(d.codigo_proc)sv('codigo_proc',d.codigo_proc);
+    if(d.cod_cbhpm)sv('cod_cbhpm',d.cod_cbhpm);
+    calcAge();fillANS();
+    toast('ğŸ”„ Rascunho anterior restaurado','wa');
+  }catch(e){}
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   RESET
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function doReset(){
+  document.getElementById('nf').reset();
+  document.getElementById('opmeRows').innerHTML='';
+  sv('medico_solicitante','Dr. JosÃ© Correia Jr.');
+  sv('cbo','225118');
+  closeModal('rstModal');
+  localStorage.removeItem('neuroauth_draft');
+  goTab(0);
+  toast('FormulÃ¡rio limpo.','wa');
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   HELPERS
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+function g(id){return document.getElementById(id)?.value||''}
+function sv(id,val){const el=document.getElementById(id);if(el)el.value=val}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+function toast(msg,type=''){
+  const c=document.getElementById('tc');
+  const t=document.createElement('div');
+  t.className='toast '+(type||'');t.textContent=msg;c.appendChild(t);
+  setTimeout(()=>t.remove(),3800);
+}
+
+function mCPF(el){
+  let v=el.value.replace(/\D/g,'');
+  v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  el.value=v;
+}
+function mPhone(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.length>10)v=v.replace(/(\d{2})(\d{5})(\d{4})/,'($1) $2-$3');
+  else v=v.replace(/(\d{2})(\d{4})(\d{4})/,'($1) $2-$3');
+  el.value=v;
+}
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   KEYBOARD
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+document.addEventListener('keydown',e=>{
+  if(e.altKey&&e.key==='ArrowRight')nextTab();
+  if(e.altKey&&e.key==='ArrowLeft')prevTab();
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveDraft();}
+});
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   INIT
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+document.addEventListener('DOMContentLoaded',()=>{
+  restoreDraft();
+  if(!document.querySelectorAll('[id^="or"]').length)addOpme();
+  goTab(0);
+});
+</script>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     PWA: Self-Contained (SW + Manifest + Icons como Blob URLs)
+     NÃ£o requer arquivos externos â€” funciona em qualquer hospedagem
+     â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+
+<div id="offlineBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:#b45309;color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:600;
+  box-shadow:0 -2px 8px rgba(0,0,0,.3);">
+  âš ï¸ Sem conexÃ£o â€” rascunho salvo localmente. SerÃ¡ enviado automaticamente quando a rede voltar.
+</div>
+
+<div id="updateBanner" style="display:none;position:fixed;top:60px;left:0;right:0;z-index:9998;
+  background:#1e7a4a;color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:600;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);">
+  ğŸ”„ Nova versÃ£o disponÃ­vel.
+  <button onclick="updateApp()" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);
+    color:#fff;padding:3px 12px;border-radius:5px;cursor:pointer;margin-left:8px;font-weight:700;">
+    Atualizar agora
+  </button>
+</div>
+
+<div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;
+  background:#1a3f6f;color:#fff;padding:10px 16px;font-size:13px;font-weight:600;
+  box-shadow:0 -2px 12px rgba(0,0,0,.3);align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+  <span>ğŸ“² Instalar NEUROAUTH como app no seu dispositivo?</span>
+  <div style="display:flex;gap:8px;">
+    <button onclick="installApp()" style="background:#22c55e;border:none;color:#fff;padding:6px 16px;
+      border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">Instalar</button>
+    <button onclick="document.getElementById(\'installBanner\').style.display=\'none\'"
+      style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;
+      padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;">Agora nÃ£o</button>
+  </div>
+</div>
+
+<script>
+(function() {
+/* â”€â”€â”€ Gera Ã­cone via Canvas (sem arquivos externos) â”€â”€â”€ */
+function makeIconDataURL(size) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  // Background
+  ctx.fillStyle = '#1a3f6f';
+  ctx.fillRect(0, 0, size, size);
+  // CÃ­rculo de borda
+  ctx.strokeStyle = '#2d6fad';
+  ctx.lineWidth = Math.max(2, size/32);
+  ctx.beginPath();
+  ctx.arc(size/2, size/2, size*0.42, 0, Math.PI*2);
+  ctx.stroke();
+  // Cruz mÃ©dica branca
+  const r = size * 0.32, bar = size / 9;
+  ctx.fillStyle = 'white';
+  ctx.fillRect(size/2 - bar/2, size/2 - r, bar, r*2);
+  ctx.fillRect(size/2 - r, size/2 - bar/2, r*2, bar);
+  // Texto "NA"
+  const fs = Math.max(8, size/9);
+  ctx.fillStyle = '#64b5f6';
+  ctx.font = `bold ${fs}px Arial`;
+  ctx.textAlign = 'center';
+  ctx.fillText('NA', size/2, size/2 + r + fs*1.1);
+  return c.toDataURL('image/png');
+}
+
+/* â”€â”€â”€ Manifest como Blob URL â”€â”€â”€ */
+const icon192 = makeIconDataURL(192);
+const icon512 = makeIconDataURL(512);
+const icon152 = makeIconDataURL(152);
+
+const manifest = {
+  "name": "NEUROAUTH â€” AutorizaÃ§Ã£o CirÃºrgica",
+  "short_name": "NEUROAUTH",
+  "description": "FormulÃ¡rio de solicitaÃ§Ã£o de autorizaÃ§Ã£o cirÃºrgica neurocirÃºrgica",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1a3f6f",
+  "theme_color": "#1a3f6f",
+  "lang": "pt-BR",
+  "icons": [
+    {"src": icon192, "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": icon512, "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
+    {"src": icon152, "sizes": "152x152", "type": "image/png", "purpose": "any"}
+  ],
+  "prefer_related_applications": false
+};
+
+const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+const manifestURL = URL.createObjectURL(manifestBlob);
+const manifestLink = document.createElement('link');
+manifestLink.rel = 'manifest';
+manifestLink.href = manifestURL;
+document.head.appendChild(manifestLink);
+
+// Apple touch icons (inline canvas)
+const touchIcon = document.createElement('link');
+touchIcon.rel = 'apple-touch-icon';
+touchIcon.href = icon192;
+document.head.appendChild(touchIcon);
+['152', '192'].forEach(s => {
+  const l = document.createElement('link');
+  l.rel = 'apple-touch-icon'; l.sizes = s+'x'+s;
+  l.href = s === '152' ? icon152 : icon192;
+  document.head.appendChild(l);
+});
+
+/* â”€â”€â”€ Service Worker como Blob URL â”€â”€â”€ */
+const swCode = `/* ============================================================
+   NEUROAUTH â€” Service Worker
+   EstratÃ©gia: Cache-first com network fallback
+   Otimizado para ambiente hospitalar (internet instÃ¡vel)
+   ============================================================ */
+
+const APP_VERSION = 'neuroauth-v2.1';
+const CACHE_NAME  = \`\${APP_VERSION}-cache\`;
+
+// Recursos que DEVEM estar disponÃ­veis offline
+const PRECACHE_URLS = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/icon-192x192.png',
+  './icons/icon-512x512.png',
+];
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   INSTALL â€” prÃ©-cache de recursos crÃ­ticos
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('[SW] PrÃ©-cacheando recursos crÃ­ticos');
+        return cache.addAll(PRECACHE_URLS);
+      })
+      .then(() => self.skipWaiting()) // Ativa imediatamente sem esperar reload
+  );
+});
+
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   ACTIVATE â€” limpa caches antigos
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all()
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => {
+            console.log('[SW] Removendo cache antigo:', name)   °¢&WGW&â66†W2æFVÆWFR†æÖR“°¢Ò¢“°¢Ò’çF†Vâ‚‚’Óâ6VÆbæ6Æ–VçG2æ6Æ–Ò‚’’òò77VÖR6öçG&öÆR–ÖVF–FòFRFöF22&0¢“°§Ò“° ¢ò¢)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H ¢dUD4‚(	BW7G&L:–v–&Ö&–VçFR†÷7—FÆ  ¢&òf÷&×VÌ:&–ò„…DÔÂ“¢66†RÖf—'7B²&WfÆ–F:|:6òVÒ&6¶w&÷Væ@¢&òvV&†öö²„Ö¶Ræ6öÒ“¢æWGv÷&²ÖöæÇ’6öÒf–ÆöffÆ–æP¢&÷WG&÷3¢7FÆR×v†–ÆR×&WfÆ–FFP®)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H¢ğ§6VÆbæFDWfVçDÆ—7FVæW"‚vfWF6‚rÂWfVçBÓâ°¢6öç7BW&ÂÒæWrU$Â†WfVçBç&WVW7BçW&Â“° ¢òòtT$„ôôÂÖ¶Ræ6öÒ(	B6V×&RFVçFæWGv÷&³²6RfÆ†"ÂVæf–ÆV—&¢–b‡W&Âæ†÷7FæÖRæ–æ6ÇVFW2‚vÖ¶Ræ6öÒr’ÇÂW&Âæ†÷7FæÖRæ–æ6ÇVFW2‚v†öö²âr’’°¢WfVçBç&W7öæEv—F‚†æWGv÷&µv—F…VWVTfÆÆ&6²†WfVçBç&WVW7B’“°¢&WGW&ã°¢Ğ ¢òò&V7W'6÷2W‡FW&æ÷2†föçG2Â4Dç2’(	B–b‡W&Âæ÷&–v–âÓÒ6VÆbæÆö6F–öâæ÷&–v–â¢–b‡W&Âæ÷&–v–âÓÒ6VÆbæÆö6F–öâæ÷&–v–â’°¢WfVçBç&W7öæEv—F‚†æWGv÷&´f—'7Ev—F„66†R†WfVçBç&WVW7B’“°¢&WGW&ã°¢Ğ ¢òò&V7W'6÷2Æö6—2„…DÔÂÂ552Â¥2Â–6öç2’Ò66†RÖf—'7B6öÒ&WfÆ–F:|:6ğ¢WfVçBç&W7öæEv—F‚†66†Tf—'7Ev—F…&WfÆ–FFR†WfVçBç&WVW7B’“°§Ò“° ¢ò¢)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H ¢U5E$L8”t”2DR44„P®)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H¢ğ ¢òò66†RÖf—'7C¢&WF÷&æFò66†R–ç7FçFæVÖVçFS²GVÆ—¦VÒ&6¶w&÷Væ@¦7–æ2gVæ7F–öâ66†Tf—'7Ev—F…&WfÆ–FFR‡&WVW7B’°¢6öç7B66†RÒv—B66†W2æ÷Vâ„44„UôäÔR“°¢6öç7B66†VBÒv—B66†RæÖF6‚‡&WVW7B“° ¢òòF—7&GVÆ—¦:|:6òVÒ&6¶w&÷VæB6VÒ&Æ÷VV ¢6öç7BæWGv÷&´fWF6‚ÒfWF6‚‡&WVW7B’çF†Vâ‡&W7öç6RÓâ°¢–b‡&W7öç6Rbb&W7öç6Rç7FGW2ÓÓÒ#’°¢66†RçWB‡&WVW7BÂ&W7öç6Ræ6ÆöæR‚’“°¢Ğ¢&WGW&â&W7öç6S°¢Ò’æ6F6‚‚‚’ÓâçVÆÂ“° ¢òò&WF÷&æ66†R–ÖVF–FÖVçFR6RF—7öì:×fVÂ‡&fVÆö6–FFRVÒÆçL:6ò¢–b†66†VB’°¢&WGW&â66†VC°¢Ğ ¢òò6Rì:6òFVÒ66†RÂW7W&&VFP¢&WGW&âæWGv÷&´fWF6‚ÇÂæWr&W7öç6R‚töffÆ–æR(	B&V7W'6òì:6òF—7öì:×fVÂrÂ°¢7FGW3¢S2À¢†VFW'3¢²t6öçFVçBÕG—Rs¢wFW‡B÷Æ–ã²6†'6WC×WFbÓ‚rĞ¢Ò“°§Ğ ¢òòæWGv÷&²Öf—'7C¢FVçF&VFR&–ÖV—&òÂfÆÆ&6²&66†P¦7–æ2gVæ7F–öâæWGv÷&´f—'7Ev—F„66†R‡&WVW7B’°¢6öç7B66†RÒv—B66†W2æ÷Vâ„44„UôäÔR“°¢G'’°¢6öç7B&W7öç6RÒv—BfWF6‚‡&WVW7BÂ²6–væÃ¢&÷'E6–væÂçF–ÖV÷WBƒC’Ò“°¢–b‡&W7öç6Rbb&W7öç6Rç7FGW2ÓÓÒ#’°¢66†RçWB‡&WVW7BÂ&W7öç6Ræ6ÆöæR‚’“°¢Ğ¢&WGW&â&W7öç6S°¢Ò6F6‚°¢6öç7B66†VBÒv—B66†RæÖF6‚‡&WVW7B“°¢&WGW&â66†VBÇÂæWr&W7öç6R‚rrÂ²7FGW3¢C‚Ò“°¢Ğ§Ğ ¢ò¢)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H ¢d”ÄôddÄ”äR$tT$„ôô° ¢VæFòòÖ¶Ræ6öÒì:6òW7L:6W7<:×fVÂ‡&VFR†÷7—FÆ"–ç7L:fVÂ’À¢6Çfò–ÆöBVÒ–æFW†VDD"R&VVçl:ÖVæFò6öæWŒ:6òföÇF"à®)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H¢ğ¦6öç7BTUTUôD"ÒvæWW&öWF‚ÖöffÆ–æR×VWVRs°¦6öç7BTUTUõ5Dõ$RÒwVæF–ær×&WVW7G2s° ¦7–æ2gVæ7F–öâæWGv÷&µv—F…VWVTfÆÆ&6²‡&WVW7B’°¢G'’°¢6öç7B&W7öç6RÒv—BfWF6‚‡&WVW7Bæ6ÆöæR‚’Â²6–væÃ¢&÷'E6–væÂçF–ÖV÷WBƒƒ’Ò“°¢&WGW&â&W7öç6S°¢Ò6F6‚†W'"’°¢òòfÆ†FR&VFR(	B6Çfæf–ÆöffÆ–æP¢6öç7B&öG’Òv—B&WVW7BçFW‡B‚“°¢v—B6fUFôöffÆ–æUVWVR‡°¢W&Ã¢&WVW7BçW&ÂÀ¢ÖWF†öC¢&WVW7BæÖWF†öBÀ¢†VFW'3¢ö&¦V7Bæg&öÔVçG&–W2‡&WVW7Bæ†VFW'2æVçG&–W2‚’’À¢&öG“¢&öG’À¢F–ÖW7F×¢FFRææ÷r‚¢Ò“° ¢òòæ÷F–f–6T¢6öç7B6Æ–VçG2Òv—B6VÆbæ6Æ–VçG2æÖF6„ÆÂ‚“°¢6Æ–VçG2æf÷$V6‚†6Æ–VçBÓâ6Æ–VçBç÷7DÖW76vR‡°¢G—S¢tôddÄ”äUõTUTTBrÀ¢ÖW76vS¢u6VÒ6öæWŒ:6òâ6öÆ–6—F:|:6ò6ÇfR6W,:Vçf–FWFöÖF–6ÖVçFRVæFò&VFRföÇF"âp¢Ò’“° ¢òò&WF÷&æ&W7÷7F6–×VÆF&ì:6òVV'&"òfÇW†òFT¢&WGW&âæWr&W7öç6R„¥4ôâç7G&–æv–g’‡°¢7FGW3¢wVWVVBrÀ¢ÖW76vS¢töffÆ–æR(	BVçf–Fò&f–Æp¢Ò’Â°¢7FGW3¢#"À¢†VFW'3¢²t6öçFVçBÕG—Rs¢vÆ–6F–öâö§6öârĞ¢Ò“°¢Ğ§Ğ ¦7–æ2gVæ7F–öâ6fUFôöffÆ–æUVWVR†—FVÒ’°¢&WGW&âæWr&öÖ—6R‚‡&W6öÇfRÂ&V¦V7B’Óâ°¢6öç7B&WÒ–æFW†VDD"æ÷Vâ…TUTUôD"Â“°¢&WæöçWw&FVæVVFVBÒRÓâ°¢RçF&vWBç&W7VÇBæ7&VFTö&¦V7E7F÷&R…TUTUõ5Dõ$RÂ²WFô–æ7&VÖVçC¢G'VRÒ“°¢Ó°¢&Wæöç7V66W72ÒRÓâ°¢6öç7BF"ÒRçF&vWBç&W7VÇC°¢6öç7BG‚ÒF"çG&ç67F–öâ…TUTUõ5Dõ$RÂw&VGw&—FRr“°¢G‚æö&¦V7E7F÷&R…TUTUõ5Dõ$R’æFB†—FVÒ“°¢G‚æöæ6ö×ÆWFRÒ‚’Óâ&W6öÇfR‚“°¢G‚æöæW'&÷"Ò‚’Óâ&V¦V7B‡G‚æW'&÷"“°¢Ó°¢&WæöæW'&÷"Ò‚’Óâ&V¦V7B‡&WæW'&÷"“°¢Ò“°§Ğ ¢ò¢)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H ¢5”ä2(	B&VVçf–òWFöÜ:F–6òVæFò&VFRföÇF®)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H¢ğ§6VÆbæFDWfVçDÆ—7FVæW"‚w7–æ2rÂWfVçBÓâ°¢–b†WfVçBçFrÓÓÒvæWW&öWF‚×7–æ2r’°¢WfVçBçv—EVçF–Â†fÇW6„öffÆ–æUVWVR‚’“°¢Ğ§Ò“° ¦7–æ2gVæ7F–öâfÇW6„öffÆ–æUVWVR‚’°¢&WGW&âæWr&öÖ—6R‚‡&W6öÇfR’Óâ°¢6öç7B&WÒ–æFW†VDD"æ÷Vâ…TUTUôD"Â“°¢&Wæöç7V66W72ÒRÓâ°¢6öç7BF"ÒRçF&vWBç&W7VÇC°¢6öç7BG‚ÒF"çG&ç67F–öâ…TUTUõ5Dõ$RÂw&VGw&—FRr“°¢6öç7B7F÷&RÒG‚æö&¦V7E7F÷&R…TUTUõ5Dõ$R“°¢6öç7BvWDÆÂÒ7F÷&RævWDÆÂ‚“°¢6öç7BvWDÆÄ¶W—2Ò7F÷&RævWDÆÄ¶W—2‚“° ¢&öÖ—6RæÆÂ…°¢æWr&öÖ—6R‡"Óâ²vWDÆÂæöç7V66W72Ò‚’Óâ"†vWDÆÂç&W7VÇB“²Ò’À¢æWr&öÖ—6R‡"Óâ²vWDÆÄ¶W—2æöç7V66W72Ò‚’Óâ"†vWDÆÄ¶W—2ç&W7VÇB“²Ò¢Ò’çF†Vâ‚…¶—FV×2Â¶W—5Ò’Óâ°¢6öç7B6VæG2Ò—FV×2æÖ‚†—FVÒÂ’’Óà¢fWF6‚†—FVÒçW&ÂÂ°¢ÖWF†öC¢—FVÒæÖWF†öBÀ¢†VFW'3¢—FVÒæ†VFW'2À¢&öG“¢—FVÒæ&öG¢Ò’çF†Vâ‚‚’Óâ°¢òò&VÖ÷fRFf–Æ;727V6W76ğ¢6öç7BFVÅG‚ÒF"çG&ç67F–öâ…TUTUõ5Dõ$RÂw&VGw&—FRr“°¢FVÅG‚æö&¦V7E7F÷&R…TUTUõ5Dõ$R’æFVÆWFR†¶W—5¶•Ò“°¢Ò’æ6F6‚‚‚’Óâ·Ò’òòÖçL:–Òæf–Æ6R–æFfÆ† ¢“°¢&öÖ—6RæÆÂ‡6VæG2’çF†Vâ‡&W6öÇfR“°¢Ò“°¢Ó°¢&WæöæW'&÷"Ò‚’Óâ&W6öÇfR‚“°¢Ò“°§Ğ ¢ò¢)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H ¢ÔU54tU2(	B6ö×Væ–6:|:6ò6öÒT®)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H¢ğ§6VÆbæFDWfVçDÆ—7FVæW"‚vÖW76vRrÂWfVçBÓâ°¢–b†WfVçBæFFòçG—RÓÓÒu4´•õt•D”ärr’°¢6VÆbç6¶—v—F–ær‚“°¢Ğ¢–b†WfVçBæFFòçG—RÓÓÒttUEõdU%4”ôâr’°¢WfVçBç÷'G5³Óòç÷7DÖW76vR‡²fW'6–öã¢õdU%4”ôâÒ“°¢Ğ§Ò“° ¦6öç6öÆRæÆör‚uµ5uÒäUU$ôUD‚6W'f–6Rv÷&¶W"6'&VvFò(	BrÂõdU%4”ôâ“°¦°¦6öç7B7t&Æö"ÒæWr&Æö"…·7t6öFUÒÂ·G—S¢vÆ–6F–öâö¦f67&—BwÒ“°¦6öç7B7uU$ÂÒU$Âæ7&VFTö&¦V7EU$Â‡7t&Æö"“° ¦ÆWB7u&Vv—7G&F–öâÒçVÆÂÂæWuv÷&¶W"ÒçVÆÂÂFVfW'&VD–ç7FÆÅ&ö×BÒçVÆÃ° ¦–b‚w6W'f–6Uv÷&¶W"r–âæf–vF÷"’°¢v–æF÷ræFDWfVçDÆ—7FVæW"‚vÆöBrÂ‚’Óâ°¢æf–vF÷"ç6W'f–6Uv÷&¶W"ç&Vv—7FW"‡7uU$ÂÂ·66÷S¢râòwÒ¢çF†Vâ‡&VrÓâ°¢7u&Vv—7G&F–öâÒ&Vs°¢6öç6öÆRæÆör‚uµtÒ5r&Vv—7G&Fòf–&Æö"U$Âr“°¢&VræFDWfVçDÆ—7FVæW"‚wWFFVf÷VæBrÂ‚’Óâ°¢æWuv÷&¶W"Ò&Vræ–ç7FÆÆ–æs°¢æWuv÷&¶W"æFDWfVçDÆ—7FVæW"‚w7FFV6†ævRrÂ‚’Óâ°¢–b†æWuv÷&¶W"ç7FFRÓÓÒv–ç7FÆÆVBrbbæf–vF÷"ç6W'f–6Uv÷&¶W"æ6öçG&öÆÆW"’°¢Fö7VÖVçBævWDVÆVÖVçD'”–B‚wWFFT&ææW"r’ç7G–ÆRæF—7Æ’Òv&Æö6²s°¢Ğ¢Ò“°¢Ò“°¢–b‚u7–æ4ÖævW"r–âv–æF÷r’&Vrç7–æ2ç&Vv—7FW"‚væWW&öWF‚×7–æ2r’æ6F6‚‚‚“Óç·Ò“°¢Ò¢æ6F6‚†W'"Óâ6öç6öÆRçv&â‚uµtÒ5r&Æö"fÆ†÷RÂFVçFæFò6Ö–æ†òF—&WFó¢rÂW'"’“° ¢æf–vF÷"ç6W'f–6Uv÷&¶W"æFDWfVçDÆ—7FVæW"‚vÖW76vRrÂWfVçBÓâ°¢–b†WfVçBæFFòçG—RÓÓÒtôddÄ”äUõTUTTBr’°¢6öç7B&ææW"ÒFö7VÖVçBævWDVÆVÖVçD'”–B‚vöffÆ–æT&ææW"r“°¢–b†&ææW"’²&ææW"çFW‡D6öçFVçBÒ~)ªûˆòr²WfVçBæFFæÖW76vS²&ææW"ç7G–ÆRæF—7Æ’Òv&Æö6²s²Ğ¢Ğ¢Ò“°¢Ò“°§Ğ ¢ò¢)H)H)HöæÆ–æRôöffÆ–æR)H)H)H¢ğ¦gVæ7F–öâWFFTöæÆ–æU7FGW2‚’°¢6öç7B&ææW"ÒFö7VÖVçBævWDVÆVÖVçD'”–B‚vöffÆ–æT&ææW"r“°¢–b‚&ææW"’&WGW&ã°¢–b‚æf–vF÷"æöäÆ–æR’°¢&ææW"ç7G–ÆRæF—7Æ’Òv&Æö6²s°¢&ææW"çFW‡D6öçFVçBÒ~)ªûˆò6VÒ6öæWŒ:6ò(	B&67Væ†ò6Çfòâ6W,:Vçf–FòVæFò&VFRföÇF"âs°¢ÒVÇ6R°¢&ææW"ç7G–ÆRæF—7Æ’ÒvæöæRs°¢–b‡7u&Vv—7G&F–öâbbu7–æ4ÖævW"r–âv–æF÷r’7u&Vv—7G&F–öâç7–æ2ç&Vv—7FW"‚væWW&öWF‚×7–æ2r’æ6F6‚‚‚“Óç·Ò“°¢Ğ§Ğ§v–æF÷ræFDWfVçDÆ—7FVæW"‚vöæÆ–æRrÂWFFTöæÆ–æU7FGW2“°§v–æF÷ræFDWfVçDÆ—7FVæW"‚vöffÆ–æRrÂWFFTöæÆ–æU7FGW2“°§WFFTöæÆ–æU7FGW2‚“° ¦gVæ7F–öâWFFT‚’²–b†æWuv÷&¶W"’²æWuv÷&¶W"ç÷7DÖW76vR‡·G—S¢u4´•õt•D”ärwÒ“²v–æF÷ræÆö6F–öâç&VÆöB‚“²ÒĞ ¢ò¢)H)H)H–ç7FÆÂ&ö×B)H)H)H¢ğ§v–æF÷ræFDWfVçDÆ—7FVæW"‚v&Vf÷&V–ç7FÆÇ&ö×BrÂRÓâ°¢Rç&WfVçDFVfVÇB‚“²FVfW'&VD–ç7FÆÅ&ö×BÒS°¢6WEF–ÖV÷WB‚‚’Óâ°¢6öç7B"ÒFö7VÖVçBævWDVÆVÖVçD'”–B‚v–ç7FÆÄ&ææW"r“°¢–b†"bbÆö6Å7F÷&vRævWD—FVÒ‚wvö–ç7FÆÆVBr’’"ç7G–ÆRæF—7Æ’ÒvfÆW‚s°¢ÒÂ3“°§Ò“° §v–æF÷ræ–ç7FÆÄÒgVæ7F–öâ‚’°¢–b‚FVfW'&VD–ç7FÆÅ&ö×B’&WGW&ã°¢FVfW'&VD–ç7FÆÅ&ö×Bç&ö×B‚“°¢FVfW'&VD–ç7FÆÅ&ö×BçW6W$6†ö–6RçF†Vâ†2Óâ°¢–b†2æ÷WF6öÖRÓÓÒv66WFVBr’°¢Æö6Å7F÷&vRç6WD—FVÒ‚wvö–ç7FÆÆVBrÂsr“°¢Fö7VÖVçBævWDVÆVÖVçD'”–B‚v–ç7FÆÄ&ææW"r’ç7G–ÆRæF—7Æ’ÒvæöæRs°¢Ğ¢Ò“°¢FVfW'&VD–ç7FÆÅ&ö×BÒçVÆÃ°§Ó° §v–æF÷ræFDWfVçDÆ—7FVæW"‚v–ç7FÆÆVBrÂ‚’Óâ°¢Æö6Å7F÷&vRç6WD—FVÒ‚wvö–ç7FÆÆVBrÂsr“°¢Fö7VÖVçBævWDVÆVÖVçD'”–B‚v–ç7FÆÄ&ææW"r’ç7G–ÆRæF—7Æ’ÒvæöæRs°§Ò“° §Ò’‚“°£Â÷67&—Cà£Âö&öG“à£Âö‡FÖ
