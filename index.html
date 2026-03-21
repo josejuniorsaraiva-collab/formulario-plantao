@@ -834,17 +834,22 @@ const SURGICAL_PROFILES = {
   "Microdiscectomia lombar":{
     sp_id:"SP001",regiao:"lombar",categoria:"hernia_sem_instabilidade",
     procedimentos:[
-      {codigo:"3.07.15.18-0",descricao:"Hérnia de disco lombar",tipo:"essencial"},
-      {codigo:"3.07.15.36-9",descricao:"Descompressão radicular",tipo:"essencial"},
-      {codigo:"3.07.15.09-1",descricao:"Laminectomia / laminotomia",tipo:"opcional"},
-      {codigo:"MICRO",descricao:"Uso de microscópio cirúrgico",tipo:"essencial"},
-      {codigo:"RADIO",descricao:"Radioscopia intraoperatória",tipo:"essencial"}
+      {codigo:"3.07.15.18-0",descricao:"Hérnia de disco tóraco-lombar — tratamento cirúrgico",tipo:"essencial"},
+      {codigo:"3.07.15.36-9",descricao:"Tratamento microcirúrgico do canal vertebral estreito por segmento",tipo:"essencial"},
+      {codigo:"3.07.15.09-1",descricao:"Descompressão medular e/ou cauda equina",tipo:"essencial"},
+      {codigo:"4.08.11.02-6",descricao:"Radioscopia para acompanhamento de procedimento cirúrgico",tipo:"essencial"},
+      {codigo:"3.07.15.19-9",descricao:"Laminectomia ou laminotomia",tipo:"opcional"},
+      {codigo:"3.14.01.26-0",descricao:"Tratamento cirúrgico da fístula liquórica",tipo:"opcional"},
+      {codigo:"2.02.02.09-1",descricao:"Monitorização neurofisiológica intra-operatória em cirurgias espinhais e ortopedia",tipo:"opcional"}
     ],
     opmes:[
-      {nome:"Kit hemostático (Surgicel/Gelfoam)",tipo:"essencial",qtd:1},
-      {nome:"Brocas cirúrgicas de alta rotação",tipo:"essencial",qtd:1},
-      {nome:"Sistema tubular MIS (acesso minimamente invasivo)",tipo:"opcional",qtd:1},
-      {nome:"Endoscopia lombar",tipo:"opcional",qtd:1}
+      {nome:"HEMOSTÁTICO",tipo:"essencial",qtd:1},
+      {nome:"PINÇA BIPOLAR (PONTA CURTA E/OU LONGA)",tipo:"essencial",qtd:2},
+      {nome:"BROCAS DE DRILL (CORTANTE/DIAMANTADA)",tipo:"essencial",qtd:2},
+      {nome:"KIT ACESSO TUBULAR (DILATADORES E AFASTADOR)",tipo:"opcional",qtd:1},
+      {nome:"COLA BIOLÓGICA OU SELANTE DURAL",tipo:"opcional",qtd:1},
+      {nome:"SUBSTITUTO DE DURAMATER",tipo:"opcional",qtd:1},
+      {nome:"KIT MONITORIZAÇÃO NEUROFISIOLÓGICA INTRA-OPERATÓRIA",tipo:"opcional",qtd:1}
     ],
     regras:["não permitir cage","não permitir parafuso pedicular"],
     justificativaBase:"Paciente com lombociatalgia por hérnia discal refratária a tratamento conservador por mais de 12 semanas, com déficit neurológico progressivo. Ressonância magnética confirma compressão radicular com alteração de sinal. Indicada microdiscectomia para descompressão neural, alívio da radiculopatia e prevenção de déficit permanente."
@@ -852,10 +857,10 @@ const SURGICAL_PROFILES = {
   "Artrodese lombar com instrumentação":{
     sp_id:"SP002",regiao:"lombar",categoria:"instabilidade",
     procedimentos:[
-      {codigo:"3.07.15.02-4",descricao:"Artrodese lombar (fusão vertebral)",tipo:"essencial"},
-      {codigo:"3.07.15.36-9",descricao:"Descompressão neural",tipo:"essencial"},
-      {codigo:"INST",descricao:"Instrumentação pedicular transpedicular",tipo:"essencial"},
-      {codigo:"RADIO",descricao:"Radioscopia intraoperatória",tipo:"essencial"}
+      {codigo:"3.07.15.02-4",descricao:"Artrodese lombar (fusão vertebral com instrumentação pedicular)",tipo:"essencial"},
+      {codigo:"3.07.15.36-9",descricao:"Descompressão neural por segmento",tipo:"essencial"},
+      {codigo:"4.08.11.02-6",descricao:"Radioscopia para acompanhamento de procedimento cirúrgico",tipo:"essencial"},
+      {codigo:"2.02.02.09-1",descricao:"Monitorização neurofisiológica intra-operatória em cirurgias espinhais",tipo:"opcional"}
     ],
     opmes:[
       {nome:"Cage intersomático lombar (PLIF/TLIF)",tipo:"essencial",qtd:2},
@@ -870,9 +875,9 @@ const SURGICAL_PROFILES = {
   "Artrodese cervical anterior ACDF":{
     sp_id:"SP003",regiao:"cervical",categoria:"cervical",
     procedimentos:[
-      {codigo:"3.07.13.02-1",descricao:"Discectomia cervical anterior",tipo:"essencial"},
-      {codigo:"DESCOMP",descricao:"Descompressão cervical anterior",tipo:"essencial"},
-      {codigo:"3.07.13.01-3",descricao:"Artrodese cervical anterior (fusão)",tipo:"essencial"}
+      {codigo:"3.07.13.02-1",descricao:"Discectomia cervical anterior com descompressão neural",tipo:"essencial"},
+      {codigo:"3.07.13.01-3",descricao:"Artrodese cervical anterior (fusão intersomática)",tipo:"essencial"},
+      {codigo:"4.08.11.02-6",descricao:"Radioscopia para acompanhamento de procedimento cirúrgico",tipo:"opcional"}
     ],
     opmes:[
       {nome:"Cage cervical peek (intersomático)",tipo:"essencial",qtd:1},
@@ -1140,10 +1145,35 @@ function buildMiniRev(){
 /* ──────────────────────────────────────────────
    RENDER SADT GUIA (faithful to Unimed template)
 ────────────────────────────────────────────── */
+/* Código válido = contém dígitos E ponto (formato CBHPM/TUSS X.XX.XX.XX-X).
+   IDs internos (RADIO, MICRO, INST, DESCOMP) são all-caps sem ponto → inválidos. */
+function isValidCodigo(c){
+  if(!c||typeof c!=='string'||c.trim()==='')return false;
+  return /\d/.test(c)&&c.includes('.');
+}
+
 function renderSADT(d,procs){
   const proc=d.procedimento||'PROCEDIMENTO';
   const carLabel={E:'E – Eletivo',U:'U – Urgência',X:'X – Emergência'};
   const car=carLabel[d.carater_cod]||d.carater||'';
+  const PAGE_SIZE=5;
+  const src=(procs&&procs.length)?procs:[{codigo:d.cod_cbhpm||'',descricao:d.procedimento||'',qtd:1}];
+  const page1=src.slice(0,PAGE_SIZE);
+  // Gerar páginas de continuação para procs além de 5
+  let contPages='';
+  for(let ci=PAGE_SIZE;ci<src.length;ci+=PAGE_SIZE){
+    const chunk=src.slice(ci,ci+PAGE_SIZE);
+    const pgNum=Math.floor(ci/PAGE_SIZE)+2;
+    const pgTotal=Math.ceil(src.length/PAGE_SIZE);
+    const cr=chunk.map(p=>{
+      const cod=p.codigo||'';
+      const inv=!isValidCodigo(cod);
+      return `<tr${inv?' style="background:#fff3cd"':''}><td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td><td style="border:1px solid #000;padding:1px 3px"><span class="fv"${inv?' style="color:red"':''}>${cod}${inv?'⚠':''}</span></td><td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.descricao||''}</span></td><td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.qtd||1}</span></td><td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td></tr>`;
+    });
+    const emp=Math.max(0,PAGE_SIZE-chunk.length);
+    for(let i=0;i<emp;i++)cr.push(`<tr><td style="border:1px solid #000;padding:1px 3px;height:16px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td></tr>`);
+    contPages+=`<div class="guia-wrap" style="margin-top:12px"><div style="background:#1f4e79;color:#fff;font-size:9px;font-weight:700;padding:3px 6px;text-align:center">◄ CONTINUAÇÃO GUIA SP/SADT — Página ${pgNum} de ${pgTotal} — ${d.nome_paciente||''} — ${d.data_solicitacao||''} ►</div><table class="guia-table"><tr style="background:#eee"><td style="border:1px solid #000;padding:1px 3px;width:45px;font-size:7.5px;font-weight:700">24-Tabela</td><td style="border:1px solid #000;padding:1px 3px;width:110px;font-size:7.5px;font-weight:700">25-Código do Procedimento</td><td style="border:1px solid #000;padding:1px 3px;font-size:7.5px;font-weight:700">26-Descrição</td><td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">27-Qtde.Sol.</td><td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">28-Qtde.Aut.</td></tr>${cr.join('')}</table></div>`;
+  }
   return `
 <div class="guia-wrap">
 <table class="guia-table">
@@ -1313,15 +1343,18 @@ function renderSADT(d,procs){
         <td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">28-Qtde.Aut.</td>
       </tr>
       ${(()=>{
-        const src=(procs&&procs.length)?procs:[{codigo:d.cod_cbhpm||'',descricao:d.procedimento||'',qtd:1}];
-        const rows=src.map(p=>`<tr>
-          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td>
-          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.codigo||''}</span></td>
-          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.descricao||''}</span></td>
-          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.qtd||1}</span></td>
-          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td>
-        </tr>`);
-        const empties=Math.max(0,5-src.length);
+        const rows=page1.map(p=>{
+          const cod=p.codigo||'';
+          const inv=!isValidCodigo(cod);
+          return `<tr${inv?' style="background:#fff3cd"':''}>
+            <td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td>
+            <td style="border:1px solid #000;padding:1px 3px"><span class="fv"${inv?' style="color:red;font-weight:bold"':''}>${cod}${inv?' ⚠':''}</span></td>
+            <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.descricao||''}</span></td>
+            <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.qtd||1}</span></td>
+            <td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td>
+          </tr>`;
+        });
+        const empties=Math.max(0,5-page1.length);
         for(let i=0;i<empties;i++)rows.push(`<tr><td style="border:1px solid #000;padding:1px 3px;height:16px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td></tr>`);
         return rows.join('');
       })()}
@@ -1438,13 +1471,165 @@ function renderSADT(d,procs){
   </td>
 </tr>
 </table>
-</div>`;
+</div>${contPages}`;
 }
 
 /* ──────────────────────────────────────────────
    RENDER OPME GUIA
 ────────────────────────────────────────────── */
+function renderOPMEPage(d,items,pageNum,totalPages){
+  const labels=['01','02','03','04','05'];
+  const pageLabel=totalPages>1?` — Página ${pageNum} de ${totalPages}`:'';
+  return `
+<div class="guia-wrap" style="${pageNum>1?'margin-top:12px':'margin-top:10px'}">
+${pageNum>1?`<div style="background:#1f4e79;color:#fff;font-size:9px;font-weight:700;padding:3px 6px;text-align:center">◄ CONTINUAÇÃO GUIA OPME${pageLabel} — ${d.nome_paciente||''} ►</div>`:''}
+<table class="guia-table">
+<tr>
+  <td class="logo-cell" rowspan="2">
+    <div class="logo-uni"><div class="logo-u">Unimed</div></div>
+    <div class="logo-cariri" style="margin-top:3px">Cariri</div>
+  </td>
+  <td class="guia-title-cell" rowspan="2" style="font-size:11px;font-weight:700;text-align:center">
+    ANEXO DE SOLICITAÇÃO DE ÓRTESES, PRÓTESES E<br>MATERIAIS ESPECIAIS – OPME${pageLabel}
+  </td>
+  <td style="text-align:right;font-size:8px;font-weight:700;width:200px;vertical-align:bottom;padding:2px 4px">
+    ${(d.procedimento||'').toUpperCase()}
+  </td>
+</tr>
+<tr>
+  <td style="padding:1px 3px">
+    <span class="fn">2 – Nº Guia no Prestador</span>
+    <span class="fv">&nbsp;</span>
+  </td>
+</tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:100px">
+          <span class="fn">1 – Registro ANS</span>
+          <span class="fv">${d.codigo_ans||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">3 – Número da Guia Referenciada</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:100px">
+          <span class="fn">4 – Senha</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:130px">
+          <span class="fn">5 – Data da Autorização</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px;width:160px">
+          <span class="fn">6 – Nº Guia Atribuído pela Operadora</span>
+          <span class="fv">&nbsp;</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr><td colspan="3" class="sh">Dados do Beneficiário</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:230px">
+          <span class="fn">7 – Número da Carteira</span>
+          <span class="fv">${d.numero_carteira||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:1px 3px">
+          <span class="fn">8 – Nome</span>
+          <span class="fv">${d.nome_paciente||''}</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr><td colspan="3" class="sh">OPME Solicitadas</td></tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table class="opme-tbl">
+      <tr>
+        <td style="width:25px" class="th">Nº</td>
+        <td style="width:45px" class="th">13-Tabela</td>
+        <td style="width:120px" class="th">14-Código do Material</td>
+        <td class="th">15-Descrição</td>
+        <td style="width:30px" class="th">16-Opc</td>
+        <td style="width:55px" class="th">17-Qtde Sol.</td>
+        <td style="width:70px" class="th">18-VU Sol. (R$)</td>
+        <td style="width:55px" class="th">19-Qtde Aut.</td>
+        <td style="width:70px" class="th">20-VU Aut. (R$)</td>
+      </tr>
+      ${labels.map((lbl,i)=>{
+        const item=items[i];
+        return `<tr>
+          <td style="font-weight:700">${lbl}</td>
+          <td></td>
+          <td></td>
+          <td><span style="font-size:10px;font-weight:700">${item?item.descricao:''}</span></td>
+          <td></td>
+          <td style="font-weight:700">${item?item.qtd:''}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr style="height:12px">
+          <td></td>
+          <td colspan="2" style="font-size:8px;color:#555">${item?'Reg. ANVISA:':''}</td>
+          <td colspan="3" style="font-size:8px;color:#555">${item?'Ref. fabricante:':''}</td>
+          <td colspan="3" style="font-size:8px;color:#555">${item?'Nº AF:':''}</td>
+        </tr>`;
+      }).join('')}
+    </table>
+  </td>
+</tr>
+<tr>
+  <td colspan="3" style="border:1px solid #000;padding:2px 4px;min-height:40px">
+    <span class="fn">25 – Observação / Justificativa</span>
+    <span class="fv sm">${d.justificativa_opme||''}</span>
+  </td>
+</tr>
+<tr>
+  <td colspan="3" style="padding:0">
+    <table style="width:100%;border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:1px 3px;width:150px">
+          <span class="fn">26 – Data da Solicitação</span>
+          <span class="fv">${d.data_solicitacao||''}</span>
+        </td>
+        <td style="border:1px solid #000;padding:2px 4px;height:36px">
+          <span class="fn">27 – Assinatura do Profissional Solicitante</span>
+          <span class="sig-area"></span>
+        </td>
+        <td style="border:1px solid #000;padding:2px 4px">
+          <span class="fn">28 – Assinatura do Responsável pela Autorização</span>
+          <span class="sig-area"></span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+</div>`;
+}
+
 function renderOPME(d){
+  const opmeItems=d.opme_items||[];
+  const PAGE_SIZE=5;
+  // Pad opmeItems para ter ao menos 1 entrada
+  const allItems=opmeItems.length?opmeItems:[{descricao:'',qtd:''}];
+  const totalPages=Math.ceil(allItems.length/PAGE_SIZE)||1;
+  let html='';
+  for(let pi=0;pi<totalPages;pi++){
+    const chunk=allItems.slice(pi*PAGE_SIZE,(pi+1)*PAGE_SIZE);
+    html+=renderOPMEPage(d,chunk,pi+1,totalPages);
+  }
+  return html;
+}
+
+function _renderOPME_LEGACY(d){
   const opmeItems=d.opme_items||[];
   const rows=['01','02','03','04','05','06'];
   return `
@@ -1680,10 +1865,11 @@ function populateSidebar(d){
   }
   profile.procedimentos.forEach((p,i)=>{
     const isFav=favProcs.some(f=>f.codigo===p.codigo);
-    ph+=`<div class="sb-item ${p.tipo}">
+    const codOk=isValidCodigo(p.codigo);
+    ph+=`<div class="sb-item ${p.tipo}${codOk?'':' sb-invalid'}">
       <input type="checkbox" class="sb-cb" id="sp_proc_${i}" ${p.tipo==='essencial'?'checked':''} onchange="updateGuiaFromSidebar()">
       <div class="sb-info">
-        <span class="sb-code">${p.codigo}</span>
+        <span class="sb-code" style="${codOk?'':'color:var(--r1);font-weight:700'}">${p.codigo}${codOk?'':' ⚠️'}</span>
         <span class="sb-desc">${p.descricao}</span>
         <span class="sb-badge ${p.tipo==='essencial'?'e':'o'}">${p.tipo}</span>
       </div>
@@ -1982,6 +2168,13 @@ async function confirmedSend(){
   // Enriquecer com seleções do sidebar builder
   const selProcs=getSelectedProcs();
   const selOpmes=getSelectedOpmesFull();
+  // ── Edit 9: bloquear envio se algum procedimento selecionado não tiver código válido ──
+  const invalidProcs=selProcs.filter(p=>!isValidCodigo(p.codigo));
+  if(invalidProcs.length>0){
+    sp.classList.remove('on');btn.disabled=false;
+    toast('⛔ '+invalidProcs.length+' procedimento(s) sem código válido: '+invalidProcs.map(p=>p.descricao||p.codigo||'(sem nome)').join(', '),'er');
+    return;
+  }
   const justEl=document.getElementById('sb-justificativa');
   const just=justEl&&justEl.value.trim()?justEl.value:d.indicacao_clinica;
   // Profile ID para rastreabilidade
