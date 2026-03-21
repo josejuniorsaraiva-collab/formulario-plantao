@@ -1140,7 +1140,7 @@ function buildMiniRev(){
 /* ──────────────────────────────────────────────
    RENDER SADT GUIA (faithful to Unimed template)
 ────────────────────────────────────────────── */
-function renderSADT(d){
+function renderSADT(d,procs){
   const proc=d.procedimento||'PROCEDIMENTO';
   const carLabel={E:'E – Eletivo',U:'U – Urgência',X:'X – Emergência'};
   const car=carLabel[d.carater_cod]||d.carater||'';
@@ -1312,20 +1312,19 @@ function renderSADT(d){
         <td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">27-Qtde.Solic.</td>
         <td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">28-Qtde.Aut.</td>
       </tr>
-      <tr>
-        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td>
-        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${d.cod_cbhpm||''}</span></td>
-        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${d.procedimento||''}</span></td>
-        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">1</span></td>
-        <td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td>
-      </tr>
-      ${[2,3,4,5].map(()=>`<tr>
-        <td style="border:1px solid #000;padding:1px 3px;height:16px"></td>
-        <td style="border:1px solid #000;padding:1px 3px"></td>
-        <td style="border:1px solid #000;padding:1px 3px"></td>
-        <td style="border:1px solid #000;padding:1px 3px"></td>
-        <td style="border:1px solid #000;padding:1px 3px"></td>
-      </tr>`).join('')}
+      ${(()=>{
+        const src=(procs&&procs.length)?procs:[{codigo:d.cod_cbhpm||'',descricao:d.procedimento||'',qtd:1}];
+        const rows=src.map(p=>`<tr>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.codigo||''}</span></td>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.descricao||''}</span></td>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.qtd||1}</span></td>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td>
+        </tr>`);
+        const empties=Math.max(0,5-src.length);
+        for(let i=0;i<empties;i++)rows.push(`<tr><td style="border:1px solid #000;padding:1px 3px;height:16px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td></tr>`);
+        return rows.join('');
+      })()}
     </table>
   </td>
 </tr>
@@ -1627,10 +1626,11 @@ function renderOPME(d){
 ────────────────────────────────────────────── */
 function openPreview(){
   const d=collect();
-  document.getElementById('sadt-render').innerHTML=renderSADT(d);
+  document.getElementById('sadt-render').innerHTML=renderSADT(d,[]);
   document.getElementById('opme-render').innerHTML=renderOPME(d);
   document.getElementById('dados-render').textContent=JSON.stringify(d,null,2);
   populateSidebar(d);
+  updateGuiaFromSidebar();
   openModal('pvModal');
 }
 
@@ -1673,11 +1673,13 @@ function populateSidebar(d){
   });
 
   // TAB 1 — Procedimentos
+  const favProcs=getFavs('procs');
   let ph=`<div class="sb-head">${profile.sp_id} · ${profile.regiao}</div>`;
   if(profile.regras&&profile.regras.length){
     ph+=`<div class="sb-rule">⛔ Regras: ${profile.regras.join(' | ')}</div>`;
   }
   profile.procedimentos.forEach((p,i)=>{
+    const isFav=favProcs.some(f=>f.codigo===p.codigo);
     ph+=`<div class="sb-item ${p.tipo}">
       <input type="checkbox" class="sb-cb" id="sp_proc_${i}" ${p.tipo==='essencial'?'checked':''} onchange="updateGuiaFromSidebar()">
       <div class="sb-info">
@@ -1685,11 +1687,15 @@ function populateSidebar(d){
         <span class="sb-desc">${p.descricao}</span>
         <span class="sb-badge ${p.tipo==='essencial'?'e':'o'}">${p.tipo}</span>
       </div>
+      <button class="fav-btn" title="Favoritar" onclick="toggleFavProc('${p.codigo}','${p.descricao.replace(/'/g,'\\\'')}')" style="background:none;border:none;cursor:pointer;font-size:14px;flex-shrink:0;padding:0 2px">${isFav?'♥':'♡'}</button>
     </div>`;
   });
+  ph+=`<button class="add-row" style="margin-top:8px;font-size:11px;padding:6px 10px" onclick="addProcToSidebar()">+ Procedimento manual</button>`;
+  if(favProcs.length)ph+=`<button class="add-row" style="margin-top:4px;font-size:11px;padding:6px 10px;background:var(--s2)" onclick="loadFavProcs()">⭐ Carregar favoritos (${favProcs.length})</button>`;
   sbProcs.innerHTML=ph;
 
   // TAB 2 — OPME com bloqueios automáticos
+  const favOpmes=getFavs('opmes');
   let oh=`<div class="sb-head">Materiais OPME</div>`;
   if(blockedTerms.size){
     oh+=`<div class="sb-rule">⛔ Bloqueados por perfil: ${Array.from(blockedTerms).join(', ')}</div>`;
@@ -1697,6 +1703,7 @@ function populateSidebar(d){
   profile.opmes.forEach((o,i)=>{
     const nLow=o.nome.toLowerCase();
     const isBlocked=Array.from(blockedTerms).some(b=>nLow.includes(b));
+    const isFavO=favOpmes.some(f=>f.nome===o.nome);
     oh+=`<div class="sb-item ${isBlocked?'blocked':o.tipo}" ${isBlocked?'title="Bloqueado por regra clínica deste perfil"':''}>
       <input type="checkbox" class="sb-cb" id="sp_opme_${i}" ${isBlocked?'disabled':(o.tipo==='essencial'?'checked':'')} onchange="updateGuiaFromSidebar()">
       <div class="sb-info">
@@ -1704,9 +1711,11 @@ function populateSidebar(d){
         <span class="sb-qtd"> × ${o.qtd}</span>
         <span class="sb-badge ${isBlocked?'b':(o.tipo==='essencial'?'e':'o')}">${isBlocked?'bloqueado':o.tipo}</span>
       </div>
+      ${isBlocked?'':`<button class="fav-btn" title="Favoritar" onclick="toggleFavOpme('${o.nome.replace(/'/g,'\\\'')}')" style="background:none;border:none;cursor:pointer;font-size:14px;flex-shrink:0;padding:0 2px">${isFavO?'♥':'♡'}</button>`}
     </div>`;
   });
   oh+=`<button class="add-row" style="margin-top:8px;font-size:11px;padding:6px 10px" onclick="addOpmeToSidebar()">+ OPME manual</button>`;
+  if(favOpmes.length)oh+=`<button class="add-row" style="margin-top:4px;font-size:11px;padding:6px 10px;background:var(--s2)" onclick="loadFavOpmes()">⭐ Carregar favoritos (${favOpmes.length})</button>`;
   sbOpmes.innerHTML=oh;
 
   // TAB 3 — Justificativa
@@ -1732,15 +1741,133 @@ function addOpmeToSidebar(){
   container.insertBefore(div,addBtn);
 }
 
+function addProcToSidebar(){
+  const container=document.getElementById('sb-procs');
+  const n=Date.now();
+  const div=document.createElement('div');
+  div.className='sb-item manual';div.id='sp_proc_manual_'+n;
+  div.innerHTML=`
+    <input type="checkbox" class="sb-cb" id="sp_proc_m${n}" checked onchange="updateGuiaFromSidebar()">
+    <div class="sb-info" style="display:flex;flex-direction:column;gap:3px">
+      <div class="sb-manual-row" style="display:flex;gap:4px">
+        <input type="text" placeholder="Código (ex: 3.07.15.18-0)" id="sp_proc_m${n}_cod" style="width:120px" oninput="updateGuiaFromSidebar()">
+        <input type="text" placeholder="Descrição do procedimento" id="sp_proc_m${n}_desc" style="flex:1" oninput="updateGuiaFromSidebar()">
+      </div>
+      <span class="sb-badge m">manual</span>
+    </div>
+    <button onclick="document.getElementById('sp_proc_manual_${n}').remove();updateGuiaFromSidebar()" style="background:none;border:none;color:var(--r1);cursor:pointer;font-size:14px;flex-shrink:0">✕</button>`;
+  const addBtn=container.querySelector('.add-row');
+  container.insertBefore(div,addBtn);
+}
+
+/* ── FAVORITOS ── */
+function getFavs(type){
+  try{return JSON.parse(localStorage.getItem('NEUROAUTH_FAV_'+type.toUpperCase())||'[]');}catch{return[];}
+}
+function setFavs(type,arr){
+  try{localStorage.setItem('NEUROAUTH_FAV_'+type.toUpperCase(),JSON.stringify(arr));}catch{}
+}
+function toggleFavProc(codigo,descricao){
+  let favs=getFavs('procs');
+  const idx=favs.findIndex(f=>f.codigo===codigo);
+  if(idx>=0)favs.splice(idx,1); else favs.push({codigo,descricao});
+  setFavs('procs',favs);
+  const d=collect();populateSidebar(d);
+  toast(idx>=0?'♡ Removido dos favoritos':'♥ Adicionado aos favoritos');
+}
+function toggleFavOpme(nome){
+  let favs=getFavs('opmes');
+  const idx=favs.findIndex(f=>f.nome===nome);
+  if(idx>=0)favs.splice(idx,1); else favs.push({nome});
+  setFavs('opmes',favs);
+  const d=collect();populateSidebar(d);
+  toast(idx>=0?'♡ Removido dos favoritos':'♥ Adicionado aos favoritos');
+}
+function loadFavProcs(){
+  const favs=getFavs('procs');
+  if(!favs.length){toast('Nenhum favorito salvo','er');return;}
+  favs.forEach(fav=>{
+    // Checar se já existe no sidebar como item de perfil
+    document.querySelectorAll('[id^="sp_proc_"]').forEach(cb=>{
+      if(cb.id.includes('_m'))return;
+      const idx=parseInt(cb.id.replace('sp_proc_',''));
+      const proc=g('procedimento');
+      const profile=SURGICAL_PROFILES[proc];
+      if(profile&&profile.procedimentos[idx]&&profile.procedimentos[idx].codigo===fav.codigo){
+        cb.checked=true;
+      }
+    });
+    // Se não existe, adicionar como manual
+    const exists=document.querySelector(`[id^="sp_proc_"]`) &&
+      Array.from(document.querySelectorAll('[id^="sp_proc_"]')).some(cb=>{
+        if(cb.id.includes('_m'))return false;
+        const idx=parseInt(cb.id.replace('sp_proc_',''));
+        const proc=g('procedimento');
+        const profile=SURGICAL_PROFILES[proc];
+        return profile&&profile.procedimentos[idx]&&profile.procedimentos[idx].codigo===fav.codigo;
+      });
+    if(!exists){
+      addProcToSidebar();
+      const items=document.querySelectorAll('[id^="sp_proc_m"][id$=""]');
+      const last=Array.from(items).filter(el=>!el.id.endsWith('_cod')&&!el.id.endsWith('_desc')).pop();
+      if(last){
+        const n=last.id.replace('sp_proc_m','');
+        const codEl=document.getElementById('sp_proc_m'+n+'_cod');
+        const descEl=document.getElementById('sp_proc_m'+n+'_desc');
+        if(codEl)codEl.value=fav.codigo;
+        if(descEl)descEl.value=fav.descricao;
+      }
+    }
+  });
+  updateGuiaFromSidebar();
+  toast(`⭐ ${favs.length} favorito(s) carregado(s)`);
+}
+function loadFavOpmes(){
+  const favs=getFavs('opmes');
+  if(!favs.length){toast('Nenhum favorito salvo','er');return;}
+  favs.forEach(fav=>{
+    const exists=Array.from(document.querySelectorAll('[id^="sp_opme_"]')).some(cb=>{
+      if(cb.id.includes('_m'))return false;
+      const idx=parseInt(cb.id.replace('sp_opme_',''));
+      const proc=g('procedimento');
+      const profile=SURGICAL_PROFILES[proc];
+      if(profile&&profile.opmes[idx]&&profile.opmes[idx].nome===fav.nome){
+        cb.checked=true;return true;
+      }
+      return false;
+    });
+    if(!exists){
+      addOpmeToSidebar();
+      const last=Array.from(document.querySelectorAll('[id^="sp_opme_m"][id$="_name"]')).pop();
+      if(last)last.value=fav.nome;
+    }
+  });
+  updateGuiaFromSidebar();
+  toast(`⭐ ${favs.length} favorito(s) carregado(s)`);
+}
+
 function getSelectedProcs(){
   const items=[];
   const proc=g('procedimento');
   const profile=SURGICAL_PROFILES[proc];
-  if(!profile)return items;
-  document.querySelectorAll('[id^="sp_proc_"]').forEach(cb=>{
+  // Perfil fechado
+  if(profile){
+    document.querySelectorAll('[id^="sp_proc_"]').forEach(cb=>{
+      if(cb.id.includes('_m'))return;
+      if(cb.checked){
+        const idx=parseInt(cb.id.replace('sp_proc_',''));
+        if(!isNaN(idx)&&profile.procedimentos[idx])items.push({...profile.procedimentos[idx]});
+      }
+    });
+  }
+  // Manuais
+  document.querySelectorAll('[id^="sp_proc_m"]').forEach(cb=>{
+    if(cb.id.endsWith('_cod')||cb.id.endsWith('_desc'))return;
     if(cb.checked){
-      const idx=parseInt(cb.id.replace('sp_proc_',''));
-      if(!isNaN(idx)&&profile.procedimentos[idx])items.push(profile.procedimentos[idx]);
+      const n=cb.id.replace('sp_proc_m','');
+      const cod=(document.getElementById('sp_proc_m'+n+'_cod')?.value||'').trim();
+      const desc=(document.getElementById('sp_proc_m'+n+'_desc')?.value||'').trim();
+      if(cod||desc)items.push({codigo:cod,descricao:desc,tipo:'manual',qtd:1});
     }
   });
   return items;
@@ -1784,6 +1911,7 @@ function updateGuiaFromSidebar(){
     justificativa_opme:just,
     opme_items:selOpmes.map(o=>({descricao:o.nome||o.descricao||'',empresa:'',qtd:o.qtd||1,unidade:'un'}))
   };
+  document.getElementById('sadt-render').innerHTML=renderSADT(d,selProcs);
   document.getElementById('opme-render').innerHTML=renderOPME(enriched);
   document.getElementById('dados-render').textContent=JSON.stringify({
     ...enriched,procedimentos_selecionados:selProcs,opmes_selecionados:selOpmes
