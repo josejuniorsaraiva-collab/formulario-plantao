@@ -1155,28 +1155,9 @@ function isValidCodigo(c){
   return /\d/.test(c)&&c.includes('.');
 }
 
-function renderSADT(d,procs){
+function renderSADTPage(d,procsSlice,pageNum,totalPages){
   const proc=d.procedimento||'PROCEDIMENTO';
-  const carLabel={E:'E – Eletivo',U:'U – Urgência',X:'X – Emergência'};
-  const car=carLabel[d.carater_cod]||d.carater||'';
-  const PAGE_SIZE=5;
-  const src=(procs&&procs.length)?procs:[{codigo:d.cod_cbhpm||'',descricao:d.procedimento||'',qtd:1}];
-  const page1=src.slice(0,PAGE_SIZE);
-  // Gerar páginas de continuação para procs além de 5
-  let contPages='';
-  for(let ci=PAGE_SIZE;ci<src.length;ci+=PAGE_SIZE){
-    const chunk=src.slice(ci,ci+PAGE_SIZE);
-    const pgNum=Math.floor(ci/PAGE_SIZE)+1;
-    const pgTotal=Math.ceil(src.length/PAGE_SIZE);
-    const cr=chunk.map(p=>{
-      const cod=p.codigo||'';
-      const inv=!isValidCodigo(cod);
-      return `<tr${inv?' style="background:#fff3cd"':''}><td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td><td style="border:1px solid #000;padding:1px 3px"><span class="fv"${inv?' style="color:red"':''}>${cod}${inv?'⚠':''}</span></td><td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.descricao||''}</span></td><td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.qtd||1}</span></td><td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td></tr>`;
-    });
-    const emp=Math.max(0,PAGE_SIZE-chunk.length);
-    for(let i=0;i<emp;i++)cr.push(`<tr><td style="border:1px solid #000;padding:1px 3px;height:16px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td></tr>`);
-    contPages+=`<div class="guia-wrap" style="margin-top:12px"><div style="background:#1f4e79;color:#fff;font-size:9px;font-weight:700;padding:3px 6px;text-align:center">◄ CONTINUAÇÃO GUIA SP/SADT — Página ${pgNum} de ${pgTotal} — ${d.nome_paciente||''} — ${d.data_solicitacao||''} ►</div><table class="guia-table"><tr style="background:#eee"><td style="border:1px solid #000;padding:1px 3px;width:45px;font-size:7.5px;font-weight:700">24-Tabela</td><td style="border:1px solid #000;padding:1px 3px;width:110px;font-size:7.5px;font-weight:700">25-Código do Procedimento</td><td style="border:1px solid #000;padding:1px 3px;font-size:7.5px;font-weight:700">26-Descrição</td><td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">27-Qtde.Sol.</td><td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">28-Qtde.Aut.</td></tr>${cr.join('')}</table></div>`;
-  }
+  const pageLabel=(totalPages>1)?` — Página ${pageNum} de ${totalPages}`:'';
   return `
 <div class="guia-wrap">
 <table class="guia-table">
@@ -1186,7 +1167,7 @@ function renderSADT(d,procs){
     <div class="logo-cariri" style="margin-top:3px">Cariri</div>
   </td>
   <td class="guia-title-cell" rowspan="2" style="font-size:11px;font-weight:700;text-align:center">
-    GUIA DE SERVIÇO PROFISSIONAL / SERVIÇO AUXILIAR DE<br>DIAGNÓSTICO E TERAPIA – SP/SADT
+    GUIA DE SERVIÇO PROFISSIONAL / SERVIÇO AUXILIAR DE<br>DIAGNÓSTICO E TERAPIA – SP/SADT${pageLabel}
   </td>
   <td style="text-align:right;font-size:8px;font-weight:700;width:200px;vertical-align:top;padding:2px 4px">
     2– Nº Guia no Prestador
@@ -1346,7 +1327,7 @@ function renderSADT(d,procs){
         <td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">28-Qtde.Aut.</td>
       </tr>
       ${(()=>{
-        const rows=page1.map(p=>{
+        const rows=procsSlice.map(p=>{
           const cod=p.codigo||'';
           const inv=!isValidCodigo(cod);
           return `<tr${inv?' style="background:#fff3cd"':''}>
@@ -1357,7 +1338,7 @@ function renderSADT(d,procs){
             <td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td>
           </tr>`;
         });
-        const empties=Math.max(0,5-page1.length);
+        const empties=Math.max(0,5-procsSlice.length);
         for(let i=0;i<empties;i++)rows.push(`<tr><td style="border:1px solid #000;padding:1px 3px;height:16px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td></tr>`);
         return rows.join('');
       })()}
@@ -1474,7 +1455,14 @@ function renderSADT(d,procs){
   </td>
 </tr>
 </table>
-</div>${contPages}`;
+</div>`;
+}
+function renderSADT(d,procs){
+  const PAGE_SIZE=5;
+  const src=(procs&&procs.length)?procs:[{codigo:d.cod_cbhpm||'',descricao:d.procedimento||'',qtd:1}];
+  const pages=[];
+  for(let i=0;i<src.length;i+=PAGE_SIZE)pages.push(src.slice(i,i+PAGE_SIZE));
+  return pages.map((slice,idx)=>renderSADTPage(d,slice,idx+1,pages.length)).join('');
 }
 
 /* ──────────────────────────────────────────────
@@ -1484,8 +1472,7 @@ function renderOPMEPage(d,items,pageNum,totalPages){
   const labels=['01','02','03','04','05'];
   const pageLabel=totalPages>1?` — Página ${pageNum} de ${totalPages}`:'';
   return `
-<div class="guia-wrap" style="${pageNum>1?'margin-top:12px':'margin-top:10px'}">
-${pageNum>1?`<div style="background:#1f4e79;color:#fff;font-size:9px;font-weight:700;padding:3px 6px;text-align:center">◄ CONTINUAÇÃO GUIA OPME${pageLabel} — ${d.nome_paciente||''} ►</div>`:''}
+<div class="guia-wrap" style="margin-top:${pageNum>1?'12':'10'}px">
 <table class="guia-table">
 <tr>
   <td class="logo-cell" rowspan="2">
