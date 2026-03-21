@@ -1708,7 +1708,7 @@ function populateSidebar(d){
       <input type="checkbox" class="sb-cb" id="sp_opme_${i}" ${isBlocked?'disabled':(o.tipo==='essencial'?'checked':'')} onchange="updateGuiaFromSidebar()">
       <div class="sb-info">
         <span class="sb-desc">${o.nome}</span>
-        <span class="sb-qtd"> × ${o.qtd}</span>
+        <span class="sb-qtd" style="display:inline-flex;align-items:center;gap:3px">×<input type="number" id="sp_opme_${i}_qtd" value="${o.qtd||1}" min="1" max="99" ${isBlocked?'disabled':''} style="width:42px;font-size:12px;padding:1px 4px;border:1px solid var(--s3);border-radius:3px;text-align:center" oninput="updateGuiaFromSidebar()"></span>
         <span class="sb-badge ${isBlocked?'b':(o.tipo==='essencial'?'e':'o')}">${isBlocked?'bloqueado':o.tipo}</span>
       </div>
       ${isBlocked?'':`<button class="fav-btn" title="Favoritar" onclick="toggleFavOpme('${o.nome.replace(/'/g,'\\\'')}')" style="background:none;border:none;cursor:pointer;font-size:14px;flex-shrink:0;padding:0 2px">${isFavO?'♥':'♡'}</button>`}
@@ -1880,9 +1880,14 @@ function getSelectedOpmesFull(){
   // Perfil
   if(profile){
     document.querySelectorAll('[id^="sp_opme_"]').forEach(cb=>{
+      if(cb.id.endsWith('_qtd'))return;
       if(cb.checked&&!cb.disabled&&!cb.id.includes('_m')){
         const idx=parseInt(cb.id.replace('sp_opme_',''));
-        if(!isNaN(idx)&&profile.opmes[idx])items.push({...profile.opmes[idx]});
+        if(!isNaN(idx)&&profile.opmes[idx]){
+          const qtdEl=document.getElementById('sp_opme_'+idx+'_qtd');
+          const qtd=qtdEl?Math.max(1,parseInt(qtdEl.value)||1):(profile.opmes[idx].qtd||1);
+          items.push({...profile.opmes[idx],qtd});
+        }
       }
     });
   }
@@ -1911,10 +1916,24 @@ function updateGuiaFromSidebar(){
     justificativa_opme:just,
     opme_items:selOpmes.map(o=>({descricao:o.nome||o.descricao||'',empresa:'',qtd:o.qtd||1,unidade:'un'}))
   };
+  const activeProfile=SURGICAL_PROFILES[d.procedimento];
+  const profileId=activeProfile?.sp_id||d.procedimento||'MANUAL';
+  const procedimentos_formatados=selProcs.length
+    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao}`).join('\n')
+    : `1. ${d.cod_cbhpm||''} – ${d.procedimento||''}`;
+  const opmes_formatadas=selOpmes.length
+    ? selOpmes.map((o,i)=>`${i+1}. ${o.nome} (qtd: ${o.qtd||1})`).join('\n')
+    : '';
   document.getElementById('sadt-render').innerHTML=renderSADT(d,selProcs);
   document.getElementById('opme-render').innerHTML=renderOPME(enriched);
   document.getElementById('dados-render').textContent=JSON.stringify({
-    ...enriched,procedimentos_selecionados:selProcs,opmes_selecionados:selOpmes
+    ...enriched,
+    profile_id:profileId,
+    procedimentos_selecionados:selProcs,
+    opmes_selecionados:selOpmes,
+    procedimentos_formatados,
+    opmes_formatadas,
+    neuroauth_version:'2.1.1'
   },null,2);
 }
 
@@ -1965,16 +1984,31 @@ async function confirmedSend(){
   const selOpmes=getSelectedOpmesFull();
   const justEl=document.getElementById('sb-justificativa');
   const just=justEl&&justEl.value.trim()?justEl.value:d.indicacao_clinica;
+  // Profile ID para rastreabilidade
+  const activeProfile=SURGICAL_PROFILES[d.procedimento];
+  const profileId=activeProfile?.sp_id||d.procedimento||'MANUAL';
+  // Campos formatados para template Docs (retrocompatível — novos campos, sem remover antigos)
+  const procedimentos_formatados=selProcs.length
+    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao}`).join('\n')
+    : `1. ${d.cod_cbhpm||''} – ${d.procedimento||''}`;
+  const opmes_formatadas=selOpmes.length
+    ? selOpmes.map((o,i)=>`${i+1}. ${o.nome} (qtd: ${o.qtd||1})`).join('\n')
+    : `${d.opme_1||''}\n${d.opme_2||''}\n${d.opme_3||''}`.trim();
   const payload={
     ...d,
     indicacao_clinica:just,
     justificativa_opme:just,
+    justificativa_final:just,
+    profile_id:profileId,
     procedimentos_selecionados:selProcs,
     opmes_selecionados:selOpmes,
+    procedimentos_formatados,
+    opmes_formatadas,
     opme_1:selOpmes[0]?.nome||d.opme_1,
     opme_2:selOpmes[1]?.nome||d.opme_2,
     opme_3:selOpmes[2]?.nome||d.opme_3,
-    neuroauth_version:'2.1'
+    neuroauth_version:'2.1.1',
+    timestamp:new Date().toISOString()
   };
   try{
     const r=await fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
