@@ -1163,7 +1163,7 @@ function renderSADT(d,procs){
   let contPages='';
   for(let ci=PAGE_SIZE;ci<src.length;ci+=PAGE_SIZE){
     const chunk=src.slice(ci,ci+PAGE_SIZE);
-    const pgNum=Math.floor(ci/PAGE_SIZE)+2;
+    const pgNum=Math.floor(ci/PAGE_SIZE)+1;
     const pgTotal=Math.ceil(src.length/PAGE_SIZE);
     const cr=chunk.map(p=>{
       const cod=p.codigo||'';
