@@ -643,7 +643,9 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
           <option value="Pendente">Pendente</option>
           <option value="Pronto para envio">Pronto para envio</option>
           <option value="Aguardando complemento">Aguardando complemento</option></select></div>
-      <div class="field"><label>Observações finais</label>
+      <div class="field"><label>Valor estimado da cirurgia <span style="font-size:10px;color:#888">(R$ — opcional)</span></label>
+        <input id="valor_estimado" type="number" min="0" step="100" placeholder="ex: 8500"/></div>
+      <div class="field full"><label>Observações finais</label>
         <textarea id="obs_finais" rows="2" placeholder="Notas adicionais…"></textarea></div>
     </div>
   </div>
@@ -1070,6 +1072,7 @@ function collect(){
     sadt_solicitado:g('sadt_solicitado'),
     status_inicial:g('status_inicial'),
     obs_finais:g('obs_finais'),
+    valor_estimado:parseFloat(document.getElementById('valor_estimado')?.value)||0,
     data_solicitacao:new Date().toLocaleDateString('pt-BR'),
     timestamp_iso:new Date().toISOString()
   };
@@ -1946,6 +1949,21 @@ function addProcToSidebar(){
   container.insertBefore(div,addBtn);
 }
 
+/* ── BILLING: USER ID ── */
+function getBillingUserId(){
+  let uid=localStorage.getItem('NEUROAUTH_USER_ID')||'';
+  if(!uid){
+    uid=prompt('⚙️ NEUROAUTH — Primeiro acesso\n\nDefina seu ID de usuário para rastreabilidade de billing.\nUse o formato: nome-cidade (ex: dr-jose-barbalha)\n\nEsse valor fica salvo no navegador e vai em toda autorização gerada.','');
+    if(uid){
+      uid=uid.toLowerCase().trim().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
+      localStorage.setItem('NEUROAUTH_USER_ID',uid);
+    }
+  }
+  return uid||'anonimo';
+}
+// Inicializa user_id silenciosamente se já existir, sem prompt
+(function(){localStorage.getItem('NEUROAUTH_USER_ID');})();
+
 /* ── FAVORITOS ── */
 function getFavs(type){
   try{return JSON.parse(localStorage.getItem('NEUROAUTH_FAV_'+type.toUpperCase())||'[]');}catch{return[];}
@@ -2200,6 +2218,13 @@ async function confirmedSend(){
     opme_1:selOpmes[0]?.nome||d.opme_1,
     opme_2:selOpmes[1]?.nome||d.opme_2,
     opme_3:selOpmes[2]?.nome||d.opme_3,
+    // ── Billing fields ──
+    user_id:getBillingUserId(),
+    convenio_id:(d.convenio||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''),
+    valor_estimado:d.valor_estimado||0,
+    status_autorizacao:'pendente',
+    billing_valor_cobrado:100,
+    billing_status:'pendente',
     neuroauth_version:'2.1.1',
     timestamp:new Date().toISOString()
   };
