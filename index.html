@@ -597,6 +597,8 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
       <div class="sec">Médico Solicitante</div>
       <div class="field"><label>Nome do médico <span class="req">*</span></label>
         <input id="medico_solicitante" type="text" value="Dr. José Correia Jr." required/></div>
+      <div class="field"><label>E-mail do médico <span class="req">*</span></label>
+        <input id="email_medico" type="email" placeholder="medico@email.com" required/></div>
       <div class="field"><label>CRM / Conselho <span class="req">*</span></label>
         <input id="crm" type="text" placeholder="CRM/CE 000000" required/></div>
       <div class="field"><label>Código CBO</label>
@@ -1058,6 +1060,7 @@ function collect(){
     indicacao_clinica:g('indicacao_clinica'),
     achados_exame:g('achados_exame'),
     medico_solicitante:g('medico_solicitante'),
+    email_medico:g('email_medico'),
     crm:g('crm'),
     cbo:g('cbo'),
     tel_medico:g('tel_medico'),
@@ -1097,6 +1100,8 @@ function validate(){
   if(!d.indicacao_clinica.trim()||d.indicacao_clinica.length<40){
     errs.push('Indicação clínica (mínimo 40 caracteres)');mark('indicacao_clinica')}
   if(!d.medico_solicitante.trim()){errs.push('Nome do médico solicitante');mark('medico_solicitante')}
+  if(!d.email_medico||!d.email_medico.trim()||!d.email_medico.includes('@')){
+    errs.push('E-mail do médico (obrigatório para rastreabilidade de cobrança)');mark('email_medico')}
   if(!d.crm.trim()){errs.push('CRM / conselho');mark('crm')}
 
   // Conditional: coluna → niveis_anatomicos
@@ -2210,12 +2215,19 @@ async function confirmedSend(){
     opme_3:selOpmes[2]?.nome||d.opme_3,
     // ── Billing fields ──
     user_id:getBillingUserId(),
+    user_email:d.email_medico||getBillingUserId(),
+    medico_nome:d.medico_solicitante||'',
     convenio_id:(d.convenio||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''),
+    procedimento_resumo:(d.procedimento||'').slice(0,60),
     valor_estimado:d.valor_estimado||0,
+    valor_unitario:100,
+    qtd_autorizacoes:1,
+    valor_total:100,
+    status_pagamento:'pendente',
+    mes_referencia:new Date().toISOString().slice(0,7),
+    billing_id:'NEUROAUTH-'+new Date().toISOString().replace(/[:.]/g,'').slice(0,15)+'-'+(profileId||'MANUAL'),
     status_autorizacao:'pendente',
-    billing_valor_cobrado:100,
-    billing_status:'pendente',
-    neuroauth_version:'2.1.1',
+    neuroauth_version:'2.1.3',
     timestamp:new Date().toISOString()
   };
   try{
