@@ -1928,6 +1928,7 @@ function addProcToSidebar(){
       <div class="sb-manual-row" style="display:flex;gap:4px">
         <input type="text" placeholder="Código (ex: 3.07.15.18-0)" id="sp_proc_m${n}_cod" style="width:120px" oninput="updateGuiaFromSidebar()">
         <input type="text" placeholder="Descrição do procedimento" id="sp_proc_m${n}_desc" style="flex:1" oninput="updateGuiaFromSidebar()">
+        <input type="number" value="1" min="1" max="99" id="sp_proc_m${n}_qtd" title="Quantidade" style="width:48px;font-size:12px;padding:1px 4px;border:1px solid var(--s3);border-radius:3px;text-align:center" oninput="updateGuiaFromSidebar()">
       </div>
       <span class="sb-badge m">manual</span>
     </div>
@@ -1999,8 +2000,8 @@ function loadFavProcs(){
       });
     if(!exists){
       addProcToSidebar();
-      const items=document.querySelectorAll('[id^="sp_proc_m"][id$=""]');
-      const last=Array.from(items).filter(el=>!el.id.endsWith('_cod')&&!el.id.endsWith('_desc')).pop();
+      const items=document.querySelectorAll('[id^="sp_proc_m"]');
+      const last=Array.from(items).filter(el=>el.tagName==='INPUT'&&el.type==='checkbox').pop();
       if(last){
         const n=last.id.replace('sp_proc_m','');
         const codEl=document.getElementById('sp_proc_m'+n+'_cod');
@@ -2053,12 +2054,13 @@ function getSelectedProcs(){
   }
   // Manuais
   document.querySelectorAll('[id^="sp_proc_m"]').forEach(cb=>{
-    if(cb.id.endsWith('_cod')||cb.id.endsWith('_desc'))return;
+    if(cb.id.endsWith('_cod')||cb.id.endsWith('_desc')||cb.id.endsWith('_qtd'))return;
     if(cb.checked){
       const n=cb.id.replace('sp_proc_m','');
       const cod=(document.getElementById('sp_proc_m'+n+'_cod')?.value||'').trim();
       const desc=(document.getElementById('sp_proc_m'+n+'_desc')?.value||'').trim();
-      if(cod||desc)items.push({codigo:cod,descricao:desc,tipo:'manual',qtd:1});
+      const qtd=Math.max(1,parseInt(document.getElementById('sp_proc_m'+n+'_qtd')?.value)||1);
+      if(cod||desc)items.push({codigo:cod,descricao:desc,tipo:'manual',qtd});
     }
   });
   return items;
@@ -2082,14 +2084,15 @@ function getSelectedOpmesFull(){
       }
     });
   }
-  // Manuais
-  document.querySelectorAll('[id^="sp_opme_m"][id$=""]').forEach(cb=>{
+  // Manuais — seletor corrigido: [id$=""] não faz match por spec CSS3
+  document.querySelectorAll('[id^="sp_opme_m"]').forEach(cb=>{
     if(cb.id.endsWith('_name')||cb.id.endsWith('_qtd'))return;
+    if(cb.tagName!=='INPUT'||cb.type!=='checkbox')return;
     if(cb.checked){
       const n=cb.id.replace('sp_opme_m','');
-      const name=document.getElementById('sp_opme_m'+n+'_name')?.value||'';
-      const qtd=parseInt(document.getElementById('sp_opme_m'+n+'_qtd')?.value)||1;
-      if(name.trim())items.push({nome:name,qtd,tipo:'manual'});
+      const name=(document.getElementById('sp_opme_m'+n+'_name')?.value||'').trim();
+      const qtd=Math.max(1,parseInt(document.getElementById('sp_opme_m'+n+'_qtd')?.value)||1);
+      if(name)items.push({nome:name,descricao:name,qtd,tipo:'manual'});
     }
   });
   return items;
@@ -2110,7 +2113,7 @@ function updateGuiaFromSidebar(){
   const activeProfile=SURGICAL_PROFILES[d.procedimento];
   const profileId=activeProfile?.sp_id||d.procedimento||'MANUAL';
   const procedimentos_formatados=selProcs.length
-    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao}`).join('\n')
+    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao} (Qtd: ${p.qtd||1})`).join('\n')
     : `1. ${d.cod_cbhpm||''} – ${d.procedimento||''}`;
   const opmes_formatadas=selOpmes.length
     ? selOpmes.map((o,i)=>`${i+1}. ${o.nome} (qtd: ${o.qtd||1})`).join('\n')
@@ -2187,7 +2190,7 @@ async function confirmedSend(){
   const profileId=activeProfile?.sp_id||d.procedimento||'MANUAL';
   // Campos formatados para template Docs (retrocompatível — novos campos, sem remover antigos)
   const procedimentos_formatados=selProcs.length
-    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao}`).join('\n')
+    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao} (Qtd: ${p.qtd||1})`).join('\n')
     : `1. ${d.cod_cbhpm||''} – ${d.procedimento||''}`;
   const opmes_formatadas=selOpmes.length
     ? selOpmes.map((o,i)=>`${i+1}. ${o.nome} (qtd: ${o.qtd||1})`).join('\n')
