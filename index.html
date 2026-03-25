@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>NEUROAUTH v2.1 — Solicitação Cirúrgica</title>
+<title>NEUROAUTH v3.0 — Solicitação Cirúrgica</title>
 
 <!-- iOS PWA Meta Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -13,7 +13,12 @@
 <meta name="theme-color" content="#1a3f6f"/>
 <meta name="msapplication-TileColor" content="#1a3f6f"/>
 
-<!-- iOS Splash / Icons -->
+<!-- Manifest PWA -->
+<link rel="manifest" href="manifest.json"/>
+
+<!-- iOS Icons -->
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png"/>
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"/>
 
 <!-- Performance hints -->
 <meta name="description" content="Solicitação de autorização cirúrgica neurocirúrgica — NEUROAUTH"/>
@@ -226,7 +231,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
   vertical-align:bottom}
 .guia-num{font-size:9px;font-weight:700}
 .box-list{list-style:none;padding:0}
-.fblank{in-height:28px;display:block;border-bottom:1px solid #aaa;margin:2px 0;font-size:11px;font-weight:700}
+.fblank{min-height:28px;display:block;border-bottom:1px solid #aaa;margin:2px 0;font-size:11px;font-weight:700}
 .sig-area{min-height:28px;border-bottom:1px solid #555;display:block}
 .grand-total{font-weight:700;background:#f0f0f0}
 
@@ -240,6 +245,66 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
   .guia-table{font-size:8px}
   .fv{font-size:10px}
 }
+
+/* ── NEUROAUTH DRAFT CONTROL ─────────────────────────────────── */
+.na-audit-strip{
+  padding:9px 18px;font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  flex-shrink:0;border-radius:0;
+}
+.na-audit-strip.draft{
+  background:#fef3c7;border-bottom:2px solid #f59e0b;color:#92400e;
+}
+.na-audit-strip.oficial{
+  background:#e6f5ed;border-bottom:2px solid #1e7a4a;color:#14532d;
+}
+.na-badge-draft,.na-badge-oficial{
+  padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;
+}
+.na-badge-draft{background:#f59e0b;color:#fff}
+.na-badge-oficial{background:#1e7a4a;color:#fff}
+/* Watermark no preview (overlay sobre pv-main) */
+.na-wm{
+  position:absolute;inset:0;
+  pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+  z-index:50;overflow:hidden;
+}
+.na-wm::after{
+  content:'RASCUNHO\ANÃO REGISTRADO';
+  white-space:pre;
+  font-size:78px;font-weight:900;
+  color:rgba(220,38,38,.13);
+  transform:rotate(-35deg) translateY(-8%);
+  text-align:center;line-height:1.05;
+  letter-spacing:3px;font-family:Arial,sans-serif;
+  text-transform:uppercase;user-select:none;
+}
+.pv-main{position:relative}
+/* Watermark na janela de impressão */
+.na-print-wm{
+  position:fixed;top:0;left:0;width:100vw;height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:9999;
+}
+.na-print-wm::after{
+  content:'RASCUNHO\ANÃO REGISTRADO';
+  white-space:pre;
+  font-size:96px;font-weight:900;
+  color:rgba(220,38,38,.13);
+  transform:rotate(-35deg);
+  text-align:center;line-height:1.05;
+  letter-spacing:3px;font-family:Arial,sans-serif;text-transform:uppercase;
+}
+.na-print-header{
+  font-size:10px;font-weight:700;
+  padding:5px 10px;margin-bottom:8px;
+  text-align:center;display:block;
+}
+.na-print-header.draft{background:#fef3c7;color:#92400e;border-bottom:2px solid #f59e0b}
+.na-print-header.oficial{background:#e6f5ed;color:#14532d;border-bottom:2px solid #1e7a4a}
+/* ── fim NEUROAUTH DRAFT CONTROL CSS ─────────────────────────── */
 
 /* MINI REVIEW TILES */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;margin-top:10px}
@@ -279,9 +344,78 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
 .sb-manual-row input[type=text]{font-size:11px;padding:4px 7px}
 .sb-manual-row input[type=number]{font-size:11px;padding:4px 5px;width:52px}
 @media(max-width:700px){.pv-sidebar{width:100%;max-width:100%}.pv-layout{flex-direction:column}}
+
+/* ═══════ NEUROAUTH — AUTH LAYER v3.0 ═══════ */
+#screen-auth,#screen-presala{
+  position:fixed;inset:0;z-index:9990;
+  background:linear-gradient(135deg,#0f2540 0%,#1a3f6f 60%,#1e5a9c 100%);
+  display:none;align-items:center;justify-content:center;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.na-auth-card{
+  background:#fff;border-radius:20px;padding:40px 48px;max-width:400px;width:92%;
+  text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.na-auth-logo{font-size:52px;font-weight:900;color:#1a3f6f;margin-bottom:8px;letter-spacing:-2px}
+.na-auth-title{font-size:22px;font-weight:700;color:#1e2432;margin-bottom:4px}
+.na-auth-sub{font-size:13px;color:#8a97a8;margin-bottom:28px;line-height:1.4}
+#na-signin-btn{display:flex;justify-content:center;margin-bottom:12px}
+.na-loading,.na-error{text-align:center;color:#fff;font-size:15px;padding:40px}
+.na-spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:na-spin 0.8s linear infinite;margin:0 auto 16px}
+@keyframes na-spin{to{transform:rotate(360deg)}}
+.na-presala-card{
+  background:#fff;border-radius:20px;padding:36px 40px;max-width:520px;width:95%;
+  text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.na-presala-header{margin-bottom:20px}
+.na-avatar{width:64px;height:64px;border-radius:50%;border:3px solid #1a3f6f;margin-bottom:12px}
+.na-avatar-ph{width:64px;height:64px;border-radius:50%;background:#1a3f6f;color:#fff;
+  font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  margin:0 auto 12px}
+.na-presala-header h2{font-size:22px;font-weight:700;color:#1e2432;margin-bottom:4px}
+.na-hospital{font-size:13px;color:#8a97a8;margin-top:2px}
+.na-presala-sub{font-size:14px;color:#4a5568;margin-bottom:18px;font-weight:500}
+.na-profile-cards{display:flex;gap:12px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.na-profile-card{
+  border:2px solid #d1d9e3;border-radius:12px;padding:16px 20px;cursor:pointer;
+  width:160px;transition:all .18s ease;background:#f4f6f9;
+}
+.na-profile-card:hover{border-color:#1a3f6f;background:#e8f0f9}
+.na-profile-card.active{border-color:#1a3f6f;background:#e8f0f9;box-shadow:0 0 0 3px rgba(26,63,111,.15)}
+.na-card-icon{font-size:28px;margin-bottom:6px}
+.na-card-title{font-size:14px;font-weight:700;color:#1e2432;margin-bottom:4px}
+.na-card-desc{font-size:11px;color:#8a97a8;line-height:1.3}
+.na-lgpd-block{
+  background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:12px 14px;
+  text-align:left;margin-bottom:16px;
+}
+.na-lgpd-label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:12px;color:#4a5568;line-height:1.5}
+.na-lgpd-label input{flex-shrink:0;margin-top:2px;width:16px;height:16px;cursor:pointer}
+.na-enter-btn{
+  width:100%;padding:14px;background:#1a3f6f;color:#fff;border:none;border-radius:10px;
+  font-size:16px;font-weight:700;cursor:pointer;transition:all .18s;margin-bottom:10px;
+}
+.na-enter-btn:disabled{background:#d1d9e3;color:#8a97a8;cursor:not-allowed}
+.na-enter-btn:not(:disabled):hover{background:#1f4e79;transform:translateY(-1px)}
+.na-logout-link{background:none;border:none;color:#8a97a8;font-size:12px;cursor:pointer;text-decoration:underline}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
+<!-- ═══════ AUTH OVERLAY ═══════ -->
+<div id="screen-auth" style="display:none;position:fixed;inset:0;z-index:9990;background:linear-gradient(135deg,#0f2540,#1a3f6f 60%,#1e5a9c);align-items:center;justify-content:center;">
+  <div class="na-auth-card">
+    <div class="na-auth-logo">N</div>
+    <div class="na-auth-title">NEUROAUTH</div>
+    <div class="na-auth-sub">Sistema de Autorização Cirúrgica<br>Neurocirurgia — Unimed Cariri</div>
+    <div id="na-signin-btn"></div>
+    <p style="font-size:11px;color:#8a97a8;margin-top:8px">Acesso restrito a profissionais autorizados</p>
+  </div>
+</div>
+
+<!-- ═══════ PRE-SALA OVERLAY ═══════ -->
+<div id="screen-presala" style="display:none;position:fixed;inset:0;z-index:9990;background:linear-gradient(135deg,#0f2540,#1a3f6f 60%,#1e5a9c);align-items:center;justify-content:center;overflow-y:auto;padding:20px 0;"></div>
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -289,7 +423,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
     <div class="tb-logo">N</div>
     <div>
       <div class="tb-title">NEUROAUTH</div>
-      <div class="tb-sub">Sistema de Autorização Cirúrgica — v2.1</div>
+      <div class="tb-sub">Sistema de Autorização Cirúrgica — v3.0</div>
     </div>
   </div>
   <div class="tb-right">
@@ -326,6 +460,10 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
       <h2>📋 Builder Cirúrgico — Unimed Cariri</h2>
       <button class="mo-x" onclick="closeModal('pvModal')">✕</button>
     </div>
+    <div id="na-audit-strip" class="na-audit-strip draft">
+      <span class="na-badge-draft" id="na-badge">RASCUNHO</span>
+      <span id="na-audit-msg">⚠️ Documento não registrado — revise e confirme o envio para registrar oficialmente</span>
+    </div>
     <div class="pv-layout">
       <!-- SIDEBAR ESQUERDA: Procedimentos / OPME / Justificativa -->
       <div class="pv-sidebar">
@@ -350,6 +488,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
       </div>
       <!-- MAIN DIREITA: Guias -->
       <div class="pv-main">
+        <div id="na-wm" class="na-wm"></div>
         <div class="ptabs">
           <div class="ptab active" onclick="showPTab('pv-sadt',this)">Guia SADT</div>
           <div class="ptab" onclick="showPTab('pv-opme',this)">Guia OPME</div>
@@ -597,8 +736,6 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
       <div class="sec">Médico Solicitante</div>
       <div class="field"><label>Nome do médico <span class="req">*</span></label>
         <input id="medico_solicitante" type="text" value="Dr. José Correia Jr." required/></div>
-      <div class="field"><label>E-mail do médico <span class="req">*</span></label>
-        <input id="email_medico" type="email" placeholder="medico@email.com" required/></div>
       <div class="field"><label>CRM / Conselho <span class="req">*</span></label>
         <input id="crm" type="text" placeholder="CRM/CE 000000" required/></div>
       <div class="field"><label>Código CBO</label>
@@ -645,9 +782,7 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
           <option value="Pendente">Pendente</option>
           <option value="Pronto para envio">Pronto para envio</option>
           <option value="Aguardando complemento">Aguardando complemento</option></select></div>
-      <div class="field"><label>Valor estimado da cirurgia <span style="font-size:10px;color:#888">(R$ — opcional)</span></label>
-        <input id="valor_estimado" type="number" min="0" step="100" placeholder="ex: 8500"/></div>
-      <div class="field full"><label>Observações finais</label>
+      <div class="field"><label>Observações finais</label>
         <textarea id="obs_finais" rows="2" placeholder="Notas adicionais…"></textarea></div>
     </div>
   </div>
@@ -687,7 +822,328 @@ textarea{min-height:90px;resize:vertical;line-height:1.5}
 /* ──────────────────────────────────────────────
    CONFIG
 ────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════
+   NEUROAUTH — AUTH LAYER v3.0
+   Google OAuth + Pre-sala + Profile Loading
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── CONFIG ──────────────────────────────────────────────────────── */
+const NA_CLIENT_ID   = '118851719832-qaktum0kj1a6r2a2fp6c75hhag8p2tlf.apps.googleusercontent.com';       // ← substituir pelo OAuth Client ID do Google Cloud Console
+const NA_PROFILE_WH  = 'https://hook.us2.make.com/jmi4qs7isybo84qml0od5j3e8cl02y3s'; // ← URL do webhook NEUROAUTH_PROFILE_READER no Make.com
+const NA_SESSION_TTL = 8 * 60 * 60 * 1000;           // 8 horas em ms
+
+/* ── SESSION HELPER ─────────────────────────────────────────────── */
+function naGetSessionField(field){
+  try{
+    const sess=JSON.parse(sessionStorage.getItem('na_session')||'{}');
+    if(field==='email')return sess.email||'';
+    if(field==='name')return sess.name||'';
+    const perfil=sess.perfil||{};
+    return String(perfil[field]||'');
+  }catch(e){return '';}
+}
+
+/* ── GOOGLE IDENTITY INIT ───────────────────────────────────────── */
+function naInitGoogle(){
+  if(typeof google==='undefined'||!google.accounts){
+    setTimeout(naInitGoogle,300);return;
+  }
+  google.accounts.id.initialize({
+    client_id:NA_CLIENT_ID,
+    callback:naHandleLogin,
+    auto_select:true,
+    cancel_on_tap_outside:false
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('na-signin-btn'),
+    {theme:'outline',size:'large',text:'signin_with',locale:'pt-BR',width:280}
+  );
+  google.accounts.id.prompt();
+}
+
+/* ── LOGIN HANDLER (Google JWT callback) ────────────────────────── */
+async function naHandleLogin(response){
+  let payload;
+  try{
+    const parts=response.credential.split('.');
+    payload=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+  }catch(e){
+    console.error('[NEUROAUTH] JWT parse error',e);return;
+  }
+  const {email,name,picture}=payload;
+  const sa=document.getElementById('screen-auth');
+  if(sa) sa.innerHTML=`<div class="na-loading">
+    <div class="na-spinner"></div>
+    <p style="color:#fff">Carregando perfil de <strong>${name}</strong>…</p>
+  </div>`;
+  try{
+    const perfil=await naFetchPerfil(email);
+    const sess={email,name,picture:picture||'',perfil,expires:Date.now()+NA_SESSION_TTL};
+    sessionStorage.setItem('na_session',JSON.stringify(sess));
+    naRenderPresala(perfil,sess);
+  }catch(err){
+    if(sa) sa.innerHTML=`<div class="na-loading">
+      <div style="font-size:48px;margin-bottom:16px">🚫</div>
+      <p style="color:#fff;font-size:16px;font-weight:700;margin-bottom:8px">Acesso Negado</p>
+      <p style="color:rgba(255,255,255,.75);font-size:13px;margin-bottom:24px;max-width:320px;text-align:center">${err.message}</p>
+      <button onclick="naLogout()" style="padding:10px 28px;background:#fff;color:#1a3f6f;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px">Trocar conta Google</button>
+    </div>`;
+  }
+}
+
+/* ── PROFILE FETCH (Make.com webhook) ───────────────────────────── */
+async function naFetchPerfil(email){
+  /* PRODUÇÃO — sem fallback para perfil fake. Toda falha bloqueia acesso. */
+  if(!NA_PROFILE_WH||NA_PROFILE_WH==='SEU_MAKE_PROFILE_WEBHOOK_URL'){
+    throw new Error('Sistema não configurado. Contate o administrador do NEUROAUTH.');
+  }
+  let resp;
+  try{
+    resp=await fetch(`${NA_PROFILE_WH}?email=${encodeURIComponent(email)}`,{cache:'no-store'});
+  }catch(netErr){
+    throw new Error('Falha de rede ao verificar perfil. Verifique sua conexão e tente novamente.');
+  }
+  if(resp.status===404){
+    throw new Error(`Acesso negado. O email ${email} não está cadastrado no NEUROAUTH.`);
+  }
+  if(!resp.ok){
+    throw new Error(`Erro ao verificar acesso (HTTP ${resp.status}). Contate o administrador.`);
+  }
+  let perfil;
+  try{ perfil=await resp.json(); }
+  catch(parseErr){ throw new Error('Resposta inválida do servidor de perfis. Contate o administrador.'); }
+
+  /* Perfil não encontrado / objeto vazio */
+  if(!perfil||!perfil.user_email){
+    throw new Error(`Acesso negado. O email ${email} não possui perfil cadastrado no NEUROAUTH.`);
+  }
+  /* Campo ativo — aceita boolean true ou strings "TRUE" / "1" / "true" */
+  const ativo=perfil.ativo;
+  const isAtivo=ativo===true||String(ativo).toUpperCase()==='TRUE'||String(ativo)==='1';
+  if(!isAtivo){
+    throw new Error('Conta inativa. Contate o administrador para reativar o acesso.');
+  }
+  return perfil;
+}
+
+/* ── PROCEDURE PROFILE FETCH (Make.com NEUROAUTH_PROFILE_READER) ─ */
+async function fetchProfile(procedimento){
+  if(!NA_PROFILE_WH||NA_PROFILE_WH==='SEU_MAKE_PROFILE_WEBHOOK_URL'){
+    console.warn('[NEUROAUTH] NA_PROFILE_WH não configurado');
+    return {found:false,procedimento,codigo:'',porte:'',convenio:'',opme:[]};
+  }
+  try{
+    const resp=await fetch(`${NA_PROFILE_WH}?procedimento=${encodeURIComponent(procedimento)}`,{cache:'no-store'});
+    if(!resp.ok) return {found:false,procedimento,codigo:'',porte:'',convenio:'',opme:[]};
+    const data=await resp.json();
+    return {
+      found:!!data.found,
+      procedimento:data.procedimento||procedimento,
+      codigo:data.codigo||'',
+      porte:data.porte||'',
+      convenio:data.convenio||'',
+      opme:Array.isArray(data.opme)?data.opme:[]
+    };
+  }catch(e){
+    console.error('[NEUROAUTH] fetchProfile error',e);
+    return {found:false,procedimento,codigo:'',porte:'',convenio:'',opme:[]};
+  }
+}
+
+/* ── RENDER PRE-SALA ────────────────────────────────────────────── */
+function naRenderPresala(perfil,sess){
+  const sa=document.getElementById('screen-auth');
+  const sp=document.getElementById('screen-presala');
+  if(sa)sa.style.display='none';
+
+  const nome=perfil?.medico_nome||sess?.name||'Usuário';
+  const tipo=perfil?.perfil_tipo||'cirurgiao';
+  const hospital=perfil?.hospital_padrao||'';
+  const avatar=sess?.picture
+    ?`<img src="${sess.picture}" class="na-avatar" alt="foto" onerror="this.outerHTML='<div class=\'na-avatar-ph\'>${nome.charAt(0).toUpperCase()}</div>'">`
+    :`<div class="na-avatar-ph">${nome.charAt(0).toUpperCase()}</div>`;
+
+  const cardCirurgiao=`<div class="na-profile-card${tipo==='cirurgiao'?' active':''}" onclick="naSelectProfile('cirurgiao',this)">
+    <div class="na-card-icon">🧑‍⚕️</div>
+    <div class="na-card-title">Cirurgião</div>
+    <div class="na-card-desc">Acesso completo ao formulário e envio direto</div>
+  </div>`;
+  const cardSecretaria=`<div class="na-profile-card${tipo==='secretaria'?' active':''}" onclick="naSelectProfile('secretaria',this)">
+    <div class="na-card-icon">👩‍💼</div>
+    <div class="na-card-title">Secretaria</div>
+    <div class="na-card-desc">Preenchimento e envio para revisão do médico</div>
+  </div>`;
+
+  sp.innerHTML=`
+    <div class="na-presala-card">
+      <div class="na-presala-header">
+        ${avatar}
+        <h2>Olá, ${nome.split(' ')[0]}!</h2>
+        ${hospital?`<p class="na-hospital">🏥 ${hospital}</p>`:''}
+      </div>
+      <p class="na-presala-sub">Como você está acessando hoje?</p>
+      <div class="na-profile-cards">
+        ${cardCirurgiao}
+        ${cardSecretaria}
+      </div>
+      <div class="na-lgpd-block">
+        <label class="na-lgpd-label">
+          <input type="checkbox" id="na-lgpd-chk" onchange="toggleEnterBtn()">
+          <span>Li e concordo com o tratamento de dados conforme a <strong>LGPD (Lei 13.709/18)</strong>. Os dados inseridos destinam-se exclusivamente à solicitação de autorização cirúrgica junto à operadora de saúde.</span>
+        </label>
+      </div>
+      <button id="na-enter-btn" class="na-enter-btn" disabled onclick="naEnterForm()">
+        Entrar no sistema →
+      </button>
+      <button class="na-logout-link" onclick="naLogout()">Sair / trocar conta Google</button>
+    </div>`;
+
+  sp.style.display='flex';
+  window._naSelectedProfile=Object.assign({},perfil);
+  window._naSess=sess;
+}
+
+/* ── SELECT PROFILE TYPE ────────────────────────────────────────── */
+function naSelectProfile(tipo,el){
+  document.querySelectorAll('.na-profile-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  if(window._naSelectedProfile)window._naSelectedProfile._selectedTipo=tipo;
+}
+
+/* ── TOGGLE ENTER BUTTON (LGPD gate) ───────────────────────────── */
+function toggleEnterBtn(){
+  const chk=document.getElementById('na-lgpd-chk');
+  const btn=document.getElementById('na-enter-btn');
+  if(chk&&btn)btn.disabled=!chk.checked;
+}
+
+/* ── ENTER FORM ─────────────────────────────────────────────────── */
+function naEnterForm(){
+  const sp=document.getElementById('screen-presala');
+  if(sp)sp.style.display='none';
+  const perfil=window._naSelectedProfile||{};
+  const sess=window._naSess||{};
+  if(perfil._selectedTipo)perfil.perfil_tipo=perfil._selectedTipo;
+  // Persist updated profile tipo in session
+  try{
+    const raw=sessionStorage.getItem('na_session');
+    if(raw){const s=JSON.parse(raw);s.perfil=perfil;sessionStorage.setItem('na_session',JSON.stringify(s));}
+  }catch(e){}
+  naPreencherFormulario(perfil);
+  naUpdateTopbar(sess,perfil);
+  naLogLGPD(sess.email,perfil.perfil_tipo);
+  // Init app (moved from DOMContentLoaded)
+  restoreDraft();
+  if(!document.querySelectorAll('[id^="or"]').length)addOpme();
+  goTab(0);
+}
+
+/* ── AUTO-FILL FORM ─────────────────────────────────────────────── */
+function naPreencherFormulario(perfil){
+  if(!perfil)return;
+  const set=(id,val)=>{const el=document.getElementById(id);if(el&&val)el.value=val;};
+  if(perfil.medico_nome)   set('medico_solicitante',perfil.medico_nome);
+  if(perfil.crm)           set('crm',perfil.crm);
+  if(perfil.cbo)           set('cbo',perfil.cbo);
+  const tel=perfil.telefone_secretaria||perfil.tel_medico||'';
+  if(tel)                  set('tel_medico',tel);
+  if(perfil.hospital_padrao) set('hospital',perfil.hospital_padrao);
+  if(perfil.convenios_habilitados){
+    const primeiroConvenio=(perfil.convenios_habilitados.split(',')[0]||'').trim();
+    if(primeiroConvenio)set('convenio',primeiroConvenio);
+  }
+}
+
+/* ── UPDATE TOPBAR BADGE ────────────────────────────────────────── */
+function naUpdateTopbar(sess,perfil){
+  const badge=document.querySelector('.badge');
+  if(!badge)return;
+  const nome=perfil?.medico_nome||sess?.name||'Usuário';
+  const tipo=perfil?.perfil_tipo||'';
+  const icon=tipo==='secretaria'?'👩‍💼':'🧑‍⚕️';
+  badge.textContent=`${icon} ${nome}`;
+  badge.title=`${sess?.email||''} · ${tipo} · Clique para sair`;
+  badge.style.cursor='pointer';
+  badge.onclick=naLogout;
+}
+
+/* ── LOGOUT ─────────────────────────────────────────────────────── */
+function naLogout(){
+  sessionStorage.removeItem('na_session');
+  sessionStorage.removeItem('na_lgpd_log');
+  try{
+    if(typeof google!=='undefined'&&google.accounts)
+      google.accounts.id.disableAutoSelect();
+  }catch(e){}
+  location.reload();
+}
+
+/* ── LGPD CONSENT LOG ───────────────────────────────────────────── */
+function naLogLGPD(email,perfil_tipo){
+  try{
+    sessionStorage.setItem('na_lgpd_log',JSON.stringify({
+      event:'LGPD_CONSENT',
+      email:email||'',
+      perfil_tipo:perfil_tipo||'',
+      timestamp:new Date().toISOString(),
+      ua:navigator.userAgent.substring(0,120)
+    }));
+  }catch(e){}
+}
+
+/* ── CHECK SESSION (entry point) ────────────────────────────────── */
+function naCheckSession(){
+  try{
+    const raw=sessionStorage.getItem('na_session');
+    if(raw){
+      const sess=JSON.parse(raw);
+      if(sess.expires&&Date.now()<sess.expires){
+        naRenderPresala(sess.perfil,sess);
+        return;
+      }
+    }
+  }catch(e){}
+  // No valid session — show auth screen
+  const sa=document.getElementById('screen-auth');
+  if(sa)sa.style.display='flex';
+  naInitGoogle();
+}
+
 const WH = "https://hook.us2.make.com/yerhrppm26aylw9jj2efmapq6ny8jlif";
+
+/* ══ NEUROAUTH DRAFT CONTROL — estado global ══════════════════ */
+let guiaRegistrada   = false;
+let envioConfirmadoEm = '';
+let envioBillingId   = '';
+let envioUserEmail   = '';
+
+function naUpdateAuditUI(){
+  const strip = document.getElementById('na-audit-strip');
+  const badge = document.getElementById('na-badge');
+  const msg   = document.getElementById('na-audit-msg');
+  const wm    = document.getElementById('na-wm');
+  if(!strip) return;
+  if(guiaRegistrada){
+    strip.className = 'na-audit-strip oficial';
+    if(badge){ badge.className='na-badge-oficial'; badge.textContent='REGISTRADO'; }
+    if(msg){
+      const ts  = envioConfirmadoEm
+        ? new Date(envioConfirmadoEm).toLocaleString('pt-BR') : '';
+      const usr = envioUserEmail || naGetSessionField('email') || '';
+      msg.textContent = '✅ Documento registrado'
+        + (ts  ? ' em ' + ts  : '')
+        + (usr ? ' · '  + usr : '');
+    }
+    if(wm) wm.style.display = 'none';
+  } else {
+    strip.className = 'na-audit-strip draft';
+    if(badge){ badge.className='na-badge-draft'; badge.textContent='RASCUNHO'; }
+    if(msg) msg.textContent =
+      '⚠️ Documento não registrado — revise e confirme o envio para registrar oficialmente';
+    if(wm) wm.style.display = '';
+  }
+}
+/* ══ fim NEUROAUTH DRAFT CONTROL ══════════════════════════════ */
 
 const COLUNA_PROCS = [
   "Microdiscectomia lombar","Laminectomia descompressiva lombar",
@@ -838,22 +1294,17 @@ const SURGICAL_PROFILES = {
   "Microdiscectomia lombar":{
     sp_id:"SP001",regiao:"lombar",categoria:"hernia_sem_instabilidade",
     procedimentos:[
-      {codigo:"3.07.15.18-0",descricao:"Hérnia de disco tóraco-lombar — tratamento cirúrgico",tipo:"essencial"},
-      {codigo:"3.07.15.36-9",descricao:"Tratamento microcirúrgico do canal vertebral estreito por segmento",tipo:"essencial"},
-      {codigo:"3.07.15.09-1",descricao:"Descompressão medular e/ou cauda equina",tipo:"essencial"},
-      {codigo:"4.08.11.02-6",descricao:"Radioscopia para acompanhamento de procedimento cirúrgico",tipo:"essencial"},
-      {codigo:"3.07.15.19-9",descricao:"Laminectomia ou laminotomia",tipo:"opcional"},
-      {codigo:"3.14.01.26-0",descricao:"Tratamento cirúrgico da fístula liquórica",tipo:"opcional"},
-      {codigo:"2.02.02.09-1",descricao:"Monitorização neurofisiológica intra-operatória em cirurgias espinhais e ortopedia",tipo:"opcional"}
+      {codigo:"3.07.15.18-0",descricao:"Hérnia de disco lombar",tipo:"essencial"},
+      {codigo:"3.07.15.36-9",descricao:"Descompressão radicular",tipo:"essencial"},
+      {codigo:"3.07.15.09-1",descricao:"Laminectomia / laminotomia",tipo:"opcional"},
+      {codigo:"MICRO",descricao:"Uso de microscópio cirúrgico",tipo:"essencial"},
+      {codigo:"RADIO",descricao:"Radioscopia intraoperatória",tipo:"essencial"}
     ],
     opmes:[
-      {nome:"HEMOSTÁTICO",tipo:"essencial",qtd:1},
-      {nome:"PINÇA BIPOLAR (PONTA CURTA E/OU LONGA)",tipo:"essencial",qtd:2},
-      {nome:"BROCAS DE DRILL (CORTANTE/DIAMANTADA)",tipo:"essencial",qtd:2},
-      {nome:"KIT ACESSO TUBULAR (DILATADORES E AFASTADOR)",tipo:"opcional",qtd:1},
-      {nome:"COLA BIOLÓGICA OU SELANTE DURAL",tipo:"opcional",qtd:1},
-      {nome:"SUBSTITUTO DE DURAMATER",tipo:"opcional",qtd:1},
-      {nome:"KIT MONITORIZAÇÃO NEUROFISIOLÓGICA INTRA-OPERATÓRIA",tipo:"opcional",qtd:1}
+      {nome:"Kit hemostático (Surgicel/Gelfoam)",tipo:"essencial",qtd:1},
+      {nome:"Brocas cirúrgicas de alta rotação",tipo:"essencial",qtd:1},
+      {nome:"Sistema tubular MIS (acesso minimamente invasivo)",tipo:"opcional",qtd:1},
+      {nome:"Endoscopia lombar",tipo:"opcional",qtd:1}
     ],
     regras:["não permitir cage","não permitir parafuso pedicular"],
     justificativaBase:"Paciente com lombociatalgia por hérnia discal refratária a tratamento conservador por mais de 12 semanas, com déficit neurológico progressivo. Ressonância magnética confirma compressão radicular com alteração de sinal. Indicada microdiscectomia para descompressão neural, alívio da radiculopatia e prevenção de déficit permanente."
@@ -861,10 +1312,10 @@ const SURGICAL_PROFILES = {
   "Artrodese lombar com instrumentação":{
     sp_id:"SP002",regiao:"lombar",categoria:"instabilidade",
     procedimentos:[
-      {codigo:"3.07.15.02-4",descricao:"Artrodese lombar (fusão vertebral com instrumentação pedicular)",tipo:"essencial"},
-      {codigo:"3.07.15.36-9",descricao:"Descompressão neural por segmento",tipo:"essencial"},
-      {codigo:"4.08.11.02-6",descricao:"Radioscopia para acompanhamento de procedimento cirúrgico",tipo:"essencial"},
-      {codigo:"2.02.02.09-1",descricao:"Monitorização neurofisiológica intra-operatória em cirurgias espinhais",tipo:"opcional"}
+      {codigo:"3.07.15.02-4",descricao:"Artrodese lombar (fusão vertebral)",tipo:"essencial"},
+      {codigo:"3.07.15.36-9",descricao:"Descompressão neural",tipo:"essencial"},
+      {codigo:"INST",descricao:"Instrumentação pedicular transpedicular",tipo:"essencial"},
+      {codigo:"RADIO",descricao:"Radioscopia intraoperatória",tipo:"essencial"}
     ],
     opmes:[
       {nome:"Cage intersomático lombar (PLIF/TLIF)",tipo:"essencial",qtd:2},
@@ -879,9 +1330,9 @@ const SURGICAL_PROFILES = {
   "Artrodese cervical anterior ACDF":{
     sp_id:"SP003",regiao:"cervical",categoria:"cervical",
     procedimentos:[
-      {codigo:"3.07.13.02-1",descricao:"Discectomia cervical anterior com descompressão neural",tipo:"essencial"},
-      {codigo:"3.07.13.01-3",descricao:"Artrodese cervical anterior (fusão intersomática)",tipo:"essencial"},
-      {codigo:"4.08.11.02-6",descricao:"Radioscopia para acompanhamento de procedimento cirúrgico",tipo:"opcional"}
+      {codigo:"3.07.13.02-1",descricao:"Discectomia cervical anterior",tipo:"essencial"},
+      {codigo:"DESCOMP",descricao:"Descompressão cervical anterior",tipo:"essencial"},
+      {codigo:"3.07.13.01-3",descricao:"Artrodese cervical anterior (fusão)",tipo:"essencial"}
     ],
     opmes:[
       {nome:"Cage cervical peek (intersomático)",tipo:"essencial",qtd:1},
@@ -1060,7 +1511,6 @@ function collect(){
     indicacao_clinica:g('indicacao_clinica'),
     achados_exame:g('achados_exame'),
     medico_solicitante:g('medico_solicitante'),
-    email_medico:g('email_medico'),
     crm:g('crm'),
     cbo:g('cbo'),
     tel_medico:g('tel_medico'),
@@ -1075,9 +1525,19 @@ function collect(){
     sadt_solicitado:g('sadt_solicitado'),
     status_inicial:g('status_inicial'),
     obs_finais:g('obs_finais'),
-    valor_estimado:parseFloat(document.getElementById('valor_estimado')?.value)||0,
     data_solicitacao:new Date().toLocaleDateString('pt-BR'),
-    timestamp_iso:new Date().toISOString()
+    timestamp_iso:new Date().toISOString(),
+    // ── AUTH / PROFILE (naAuth v3.0) ──
+    user_email:           naGetSessionField('email'),
+    perfil_tipo:          naGetSessionField('perfil_tipo'),
+    medico_nome:          naGetSessionField('medico_nome'),
+    email_secretaria:     naGetSessionField('email_secretaria'),
+    email_cirurgiao:      naGetSessionField('email_cirurgiao'),
+    telefone_secretaria:  naGetSessionField('telefone_secretaria'),
+    whatsapp_secretaria:  naGetSessionField('whatsapp_secretaria'),
+    calendario_id:        naGetSessionField('calendario_id'),
+    convenios_habilitados:naGetSessionField('convenios_habilitados'),
+    hospital_padrao:      naGetSessionField('hospital_padrao')
   };
 }
 
@@ -1100,8 +1560,6 @@ function validate(){
   if(!d.indicacao_clinica.trim()||d.indicacao_clinica.length<40){
     errs.push('Indicação clínica (mínimo 40 caracteres)');mark('indicacao_clinica')}
   if(!d.medico_solicitante.trim()){errs.push('Nome do médico solicitante');mark('medico_solicitante')}
-  if(!d.email_medico||!d.email_medico.trim()||!d.email_medico.includes('@')){
-    errs.push('E-mail do médico (obrigatório para rastreabilidade de cobrança)');mark('email_medico')}
   if(!d.crm.trim()){errs.push('CRM / conselho');mark('crm')}
 
   // Conditional: coluna → niveis_anatomicos
@@ -1151,18 +1609,79 @@ function buildMiniRev(){
 }
 
 /* ──────────────────────────────────────────────
-   RENDER SADT GUIA (faithful to Unimed template)
+   PAGINATION HELPERS
 ────────────────────────────────────────────── */
-/* Código válido = contém dígitos E ponto (formato CBHPM/TUSS X.XX.XX.XX-X).
-   IDs internos (RADIO, MICRO, INST, DESCOMP) são all-caps sem ponto → inválidos. */
-function isValidCodigo(c){
-  if(!c||typeof c!=='string'||c.trim()==='')return false;
-  return /\d/.test(c)&&c.includes('.');
+function chunkItems(arr,size){const r=[];for(let i=0;i<arr.length;i+=size)r.push(arr.slice(i,i+size));return r.length?r:[[]];}
+const ITENS_POR_PAGINA_SADT=5;
+const ITENS_POR_PAGINA_OPME=5;
+
+/* ──────────────────────────────────────────────
+   OPME — NORMALIZAÇÃO CANÔNICA
+   Aceita qualquer estrutura de origem (perfil, formulário, manual, webhook)
+   e retorna objeto com campos garantidos e consistentes.
+────────────────────────────────────────────── */
+function normalizeOpmeItem(o){
+  if(!o)return null;
+  const safeStr=v=>(v!=null?String(v):'').trim();
+  const safeNum=v=>{const n=Number(safeStr(v));return(!isNaN(n)&&n>0)?n:1;};
+
+  const descricao=safeStr(o.descricao||o.desc||o.nome||o.name||o.descricao_material||o.materialName||o.material||'');
+  if(!descricao)return null;
+
+  return {
+    descricao,
+    qtd     : safeNum(o.qtd||o.qtde||o.quantidade||o.quantidade_solicitada||o.quantity||o.qnt||1),
+    tabela  : safeStr(o.tabela||o.tabelaCodigo||o.table_code||''),
+    codigo  : safeStr(o.codigo||o.cod||o.cod_material||o.codigo_material||o.materialCode||o.codMaterial||o.code||''),
+    opcao   : safeStr(o.opcao||o.opcaoMaterial||o.option||''),
+    valorUnitario : safeStr(o.valorUnitario||o.valor_unitario||o.vl_unitario||o.valor||o.unitPrice||o.price||o.vl||''),
+    anvisa  : safeStr(o.anvisa||o.registro_anvisa||o.registroAnvisa||o.anvisaCode||o.reg_anvisa||''),
+    fabricante : safeStr(o.fabricante||o.ref_fabricante||o.refFabricante||o.empresa||o.fornecedor||o.manufacturer||o.supplier||o.emp||''),
+    af      : safeStr(o.af||o.autorizacao_funcionamento||o.autorizacaoFuncionamento||o.num_af||o.numAF||''),
+    referencia : safeStr(o.referencia||o.ref||o.reference||''),
+    nomeFornecedor : safeStr(o.nomeFornecedor||o.nome_fornecedor||o.empresa||o.fabricante||''),
+    observacao : safeStr(o.observacao||o.obs||o.observation||o.unidade||o.unit||''),
+    tipo    : safeStr(o.tipo||'automatico')
+  };
 }
 
-function renderSADTPage(d,procsSlice,pageNum,totalPages){
+/* ──────────────────────────────────────────────
+   OPME — RESOLUÇÃO DE ORIGEM EFETIVA
+   Prioridade: sidebar selecionados → formulário (tab OPME)
+────────────────────────────────────────────── */
+function getEffectiveOpmeItems(d, selOpmes){
+  // Prioridade 1: itens selecionados na sidebar (perfil automático + manual)
+  if(selOpmes&&selOpmes.length){
+    const fromSidebar=[];
+    selOpmes.forEach(o=>{const n=normalizeOpmeItem(o);if(n)fromSidebar.push(n);});
+    if(fromSidebar.length)return fromSidebar;
+  }
+  // Prioridade 2: itens digitados no formulário (tab OPME)
+  const fromForm=[];
+  (d.opme_items||[]).forEach(o=>{const n=normalizeOpmeItem(o);if(n)fromForm.push(n);});
+  return fromForm;
+}
+
+/* ──────────────────────────────────────────────
+   RENDER SADT GUIA (faithful to Unimed template)
+────────────────────────────────────────────── */
+function renderSADT(d,procs){
   const proc=d.procedimento||'PROCEDIMENTO';
-  const pageLabel=(totalPages>1)?` — Página ${pageNum} de ${totalPages}`:'';
+  const carLabel={E:'E – Eletivo',U:'U – Urgência',X:'X – Emergência'};
+  const car=carLabel[d.carater_cod]||d.carater||'';
+  const src=(procs&&procs.length)?procs:[{codigo:d.cod_cbhpm||'',descricao:d.procedimento||'',qtd:1}];
+  const pages=chunkItems(src,ITENS_POR_PAGINA_SADT);
+  return pages.map((pg,pi)=>{
+  const dataRows=pg.map(p=>`<tr>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.codigo||''}</span></td>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.descricao||''}</span></td>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.qtd||1}</span></td>
+          <td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td>
+        </tr>`);
+  const empties=Math.max(0,ITENS_POR_PAGINA_SADT-pg.length);
+  for(let i=0;i<empties;i++)dataRows.push(`<tr><td style="border:1px solid #000;padding:1px 3px;height:16px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td></tr>`);
+  const rowsHtml=dataRows.join('');
   return `
 <div class="guia-wrap">
 <table class="guia-table">
@@ -1172,7 +1691,7 @@ function renderSADTPage(d,procsSlice,pageNum,totalPages){
     <div class="logo-cariri" style="margin-top:3px">Cariri</div>
   </td>
   <td class="guia-title-cell" rowspan="2" style="font-size:11px;font-weight:700;text-align:center">
-    GUIA DE SERVIÇO PROFISSIONAL / SERVIÇO AUXILIAR DE<br>DIAGNÓSTICO E TERAPIA – SP/SADT${pageLabel}
+    GUIA DE SERVIÇO PROFISSIONAL / SERVIÇO AUXILIAR DE<br>DIAGNÓSTICO E TERAPIA – SP/SADT
   </td>
   <td style="text-align:right;font-size:8px;font-weight:700;width:200px;vertical-align:top;padding:2px 4px">
     2– Nº Guia no Prestador
@@ -1331,22 +1850,7 @@ function renderSADTPage(d,procsSlice,pageNum,totalPages){
         <td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">27-Qtde.Solic.</td>
         <td style="border:1px solid #000;padding:1px 3px;width:70px;font-size:7.5px;font-weight:700">28-Qtde.Aut.</td>
       </tr>
-      ${(()=>{
-        const rows=procsSlice.map(p=>{
-          const cod=p.codigo||'';
-          const inv=!isValidCodigo(cod);
-          return `<tr${inv?' style="background:#fff3cd"':''}>
-            <td style="border:1px solid #000;padding:1px 3px"><span class="fv">57</span></td>
-            <td style="border:1px solid #000;padding:1px 3px"><span class="fv"${inv?' style="color:red;font-weight:bold"':''}>${cod}${inv?' ⚠':''}</span></td>
-            <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.descricao||''}</span></td>
-            <td style="border:1px solid #000;padding:1px 3px"><span class="fv">${p.qtd||1}</span></td>
-            <td style="border:1px solid #000;padding:1px 3px"><span class="fv">&nbsp;</span></td>
-          </tr>`;
-        });
-        const empties=Math.max(0,5-procsSlice.length);
-        for(let i=0;i<empties;i++)rows.push(`<tr><td style="border:1px solid #000;padding:1px 3px;height:16px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td><td style="border:1px solid #000;padding:1px 3px"></td></tr>`);
-        return rows.join('');
-      })()}
+      ${rowsHtml}
     </table>
   </td>
 </tr>
@@ -1461,172 +1965,39 @@ function renderSADTPage(d,procsSlice,pageNum,totalPages){
 </tr>
 </table>
 </div>`;
-}
-function renderSADT(d,procs){
-  const PAGE_SIZE=5;
-  const src=(procs&&procs.length)?procs:[{codigo:d.cod_cbhpm||'',descricao:d.procedimento||'',qtd:1}];
-  const pages=[];
-  for(let i=0;i<src.length;i+=PAGE_SIZE)pages.push(src.slice(i,i+PAGE_SIZE));
-  return pages.map((slice,idx)=>renderSADTPage(d,slice,idx+1,pages.length)).join('');
+  }).join('<div style="page-break-after:always"></div>');
 }
 
 /* ──────────────────────────────────────────────
    RENDER OPME GUIA
 ────────────────────────────────────────────── */
-function renderOPMEPage(d,items,pageNum,totalPages){
-  const labels=['01','02','03','04','05'];
-  const pageLabel=totalPages>1?` — Página ${pageNum} de ${totalPages}`:'';
-  return `
-<div class="guia-wrap" style="margin-top:${pageNum>1?'12':'10'}px">
-<table class="guia-table">
-<tr>
-  <td class="logo-cell" rowspan="2">
-    <div class="logo-uni"><div class="logo-u">Unimed</div></div>
-    <div class="logo-cariri" style="margin-top:3px">Cariri</div>
-  </td>
-  <td class="guia-title-cell" rowspan="2" style="font-size:11px;font-weight:700;text-align:center">
-    ANEXO DE SOLICITAÇÃO DE ÓRTESES, PRÓTESES E<br>MATERIAIS ESPECIAIS – OPME${pageLabel}
-  </td>
-  <td style="text-align:right;font-size:8px;font-weight:700;width:200px;vertical-align:bottom;padding:2px 4px">
-    ${(d.procedimento||'').toUpperCase()}
-  </td>
-</tr>
-<tr>
-  <td style="padding:1px 3px">
-    <span class="fn">2 – Nº Guia no Prestador</span>
-    <span class="fv">&nbsp;</span>
-  </td>
-</tr>
-<tr>
-  <td colspan="3" style="padding:0">
-    <table style="width:100%;border-collapse:collapse">
-      <tr>
-        <td style="border:1px solid #000;padding:1px 3px;width:100px">
-          <span class="fn">1 – Registro ANS</span>
-          <span class="fv">${d.codigo_ans||''}</span>
-        </td>
-        <td style="border:1px solid #000;padding:1px 3px">
-          <span class="fn">3 – Número da Guia Referenciada</span>
-          <span class="fv">&nbsp;</span>
-        </td>
-        <td style="border:1px solid #000;padding:1px 3px;width:100px">
-          <span class="fn">4 – Senha</span>
-          <span class="fv">&nbsp;</span>
-        </td>
-        <td style="border:1px solid #000;padding:1px 3px;width:130px">
-          <span class="fn">5 – Data da Autorização</span>
-          <span class="fv">&nbsp;</span>
-        </td>
-        <td style="border:1px solid #000;padding:1px 3px;width:160px">
-          <span class="fn">6 – Nº Guia Atribuído pela Operadora</span>
-          <span class="fv">&nbsp;</span>
-        </td>
-      </tr>
-    </table>
-  </td>
-</tr>
-<tr><td colspan="3" class="sh">Dados do Beneficiário</td></tr>
-<tr>
-  <td colspan="3" style="padding:0">
-    <table style="width:100%;border-collapse:collapse">
-      <tr>
-        <td style="border:1px solid #000;padding:1px 3px;width:230px">
-          <span class="fn">7 – Número da Carteira</span>
-          <span class="fv">${d.numero_carteira||''}</span>
-        </td>
-        <td style="border:1px solid #000;padding:1px 3px">
-          <span class="fn">8 – Nome</span>
-          <span class="fv">${d.nome_paciente||''}</span>
-        </td>
-      </tr>
-    </table>
-  </td>
-</tr>
-<tr><td colspan="3" class="sh">OPME Solicitadas</td></tr>
-<tr>
-  <td colspan="3" style="padding:0">
-    <table class="opme-tbl">
-      <tr>
-        <td style="width:25px" class="th">Nº</td>
-        <td style="width:45px" class="th">13-Tabela</td>
-        <td style="width:120px" class="th">14-Código do Material</td>
-        <td class="th">15-Descrição</td>
-        <td style="width:30px" class="th">16-Opc</td>
-        <td style="width:55px" class="th">17-Qtde Sol.</td>
-        <td style="width:70px" class="th">18-VU Sol. (R$)</td>
-        <td style="width:55px" class="th">19-Qtde Aut.</td>
-        <td style="width:70px" class="th">20-VU Aut. (R$)</td>
-      </tr>
-      ${labels.map((lbl,i)=>{
-        const item=items[i];
-        return `<tr>
-          <td style="font-weight:700">${lbl}</td>
-          <td></td>
-          <td></td>
-          <td><span style="font-size:10px;font-weight:700">${item?item.descricao:''}</span></td>
-          <td></td>
-          <td style="font-weight:700">${item?item.qtd:''}</td>
-          <td></td>
+function renderOPME(d){
+  const opmeItems=d.opme_items||[];
+  const src=opmeItems.length?opmeItems:[null];
+  const pages=chunkItems(src,ITENS_POR_PAGINA_OPME);
+  return pages.map((pg,pi)=>{
+  const rowsHtml=Array.from({length:ITENS_POR_PAGINA_OPME},(_,i)=>{
+    const item=pg[i];
+    const r=String(pi*ITENS_POR_PAGINA_OPME+i+1).padStart(2,'0');
+    const desc=item&&item.descricao?item.descricao:'';
+    return `<tr>
+          <td style="font-weight:700">${r}</td>
+          <td style="font-size:8px">${item&&item.tabela?item.tabela:''}</td>
+          <td style="font-size:8px">${item&&item.codigo?item.codigo:''}</td>
+          <td><span style="font-size:10px;font-weight:700">${desc}</span></td>
+          <td style="font-size:8px">${item&&item.opcao?item.opcao:''}</td>
+          <td style="font-weight:700">${item&&item.qtd?item.qtd:''}</td>
+          <td style="font-size:8px">${item&&item.valorUnitario?item.valorUnitario:''}</td>
           <td></td>
           <td></td>
         </tr>
         <tr style="height:12px">
           <td></td>
-          <td colspan="2" style="font-size:8px;color:#555">${item?'Reg. ANVISA:':''}</td>
-          <td colspan="3" style="font-size:8px;color:#555">${item?'Ref. fabricante:':''}</td>
-          <td colspan="3" style="font-size:8px;color:#555">${item?'Nº AF:':''}</td>
+          <td colspan="2" style="font-size:8px;color:#555">${desc?('Reg. ANVISA: '+(item.anvisa||'')):''}</td>
+          <td colspan="3" style="font-size:8px;color:#555">${desc?('Ref. fabricante: '+(item.fabricante||'')):''}</td>
+          <td colspan="3" style="font-size:8px;color:#555">${desc?('Nº AF: '+(item.af||'')):''}</td>
         </tr>`;
-      }).join('')}
-    </table>
-  </td>
-</tr>
-<tr>
-  <td colspan="3" style="border:1px solid #000;padding:2px 4px;min-height:40px">
-    <span class="fn">25 – Observação / Justificativa</span>
-    <span class="fv sm">${d.justificativa_opme||''}</span>
-  </td>
-</tr>
-<tr>
-  <td colspan="3" style="padding:0">
-    <table style="width:100%;border-collapse:collapse">
-      <tr>
-        <td style="border:1px solid #000;padding:1px 3px;width:150px">
-          <span class="fn">26 – Data da Solicitação</span>
-          <span class="fv">${d.data_solicitacao||''}</span>
-        </td>
-        <td style="border:1px solid #000;padding:2px 4px;height:36px">
-          <span class="fn">27 – Assinatura do Profissional Solicitante</span>
-          <span class="sig-area"></span>
-        </td>
-        <td style="border:1px solid #000;padding:2px 4px">
-          <span class="fn">28 – Assinatura do Responsável pela Autorização</span>
-          <span class="sig-area"></span>
-        </td>
-      </tr>
-    </table>
-  </td>
-</tr>
-</table>
-</div>`;
-}
-
-function renderOPME(d){
-  const opmeItems=d.opme_items||[];
-  const PAGE_SIZE=5;
-  // Pad opmeItems para ter ao menos 1 entrada
-  const allItems=opmeItems.length?opmeItems:[{descricao:'',qtd:''}];
-  const totalPages=Math.ceil(allItems.length/PAGE_SIZE)||1;
-  let html='';
-  for(let pi=0;pi<totalPages;pi++){
-    const chunk=allItems.slice(pi*PAGE_SIZE,(pi+1)*PAGE_SIZE);
-    html+=renderOPMEPage(d,chunk,pi+1,totalPages);
-  }
-  return html;
-}
-
-function _renderOPME_LEGACY(d){
-  const opmeItems=d.opme_items||[];
-  const rows=['01','02','03','04','05','06'];
+  }).join('');
   return `
 <div class="guia-wrap" style="margin-top:10px">
 <table class="guia-table">
@@ -1740,26 +2111,7 @@ function _renderOPME_LEGACY(d){
         <td style="width:55px" class="th">19-Qtde Aut.</td>
         <td style="width:70px" class="th">20-VU Aut. (R$)</td>
       </tr>
-      ${rows.map((r,i)=>{
-        const item=opmeItems[i];
-        return `<tr>
-          <td style="font-weight:700">${r}</td>
-          <td></td>
-          <td></td>
-          <td><span style="font-size:10px;font-weight:700">${item?item.descricao:''}</span></td>
-          <td></td>
-          <td style="font-weight:700">${item?item.qtd:''}</td>
-          <td></td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr style="height:12px">
-          <td></td>
-          <td colspan="2" style="font-size:8px;color:#555">${item?'Reg. ANVISA:':''}</td>
-          <td colspan="3" style="font-size:8px;color:#555">${item?'Ref. fabricante:':''}</td>
-          <td colspan="3" style="font-size:8px;color:#555">${item?'Nº AF:':''}</td>
-        </tr>`;
-      }).join('')}
+      ${rowsHtml}
     </table>
   </td>
 </tr>
@@ -1799,6 +2151,7 @@ function _renderOPME_LEGACY(d){
 </tr>
 </table>
 </div>`;
+  }).join('<div style="page-break-after:always"></div>');
 }
 
 /* ──────────────────────────────────────────────
@@ -1806,11 +2159,13 @@ function _renderOPME_LEGACY(d){
 ────────────────────────────────────────────── */
 function openPreview(){
   const d=collect();
+  // Renderiza SADT com placeholder vazio (sidebar ainda não está montada)
   document.getElementById('sadt-render').innerHTML=renderSADT(d,[]);
-  document.getElementById('opme-render').innerHTML=renderOPME(d);
-  document.getElementById('dados-render').textContent=JSON.stringify(d,null,2);
+  // Monta sidebar com perfil + itens de formulário
   populateSidebar(d);
+  // updateGuiaFromSidebar faz render definitivo de SADT+OPME com dados reais da sidebar
   updateGuiaFromSidebar();
+  naUpdateAuditUI();
   openModal('pvModal');
 }
 
@@ -1840,7 +2195,27 @@ function populateSidebar(d){
 
   if(!profile){
     sbProcs.innerHTML='<div class="sb-head">Procedimentos</div><div style="color:var(--s4);font-size:12px;padding:4px">Perfil cirúrgico não configurado para este procedimento.<br>OPME e códigos já preenchidos no formulário.</div>';
-    sbOpmes.innerHTML='<div class="sb-head">OPME</div><div style="color:var(--s4);font-size:12px;padding:4px">Sem perfil de OPME configurado para este procedimento.</div>';
+    // Quando não há perfil, popula sidebar com itens OPME do formulário para permitir interação
+    const formOpmes=d.opme_items||[];
+    let noProfileOh=`<div class="sb-head">OPME do Formulário</div>`;
+    if(formOpmes.length){
+      formOpmes.forEach((o,i)=>{
+        const norm=normalizeOpmeItem(o);
+        if(!norm)return;
+        noProfileOh+=`<div class="sb-item opcional">
+          <input type="checkbox" class="sb-cb" id="sp_opme_fp${i}" checked onchange="updateGuiaFromSidebar()">
+          <div class="sb-info">
+            <span class="sb-desc">${norm.descricao}</span>
+            <span class="sb-qtd" style="display:inline-flex;align-items:center;gap:3px">×<input type="number" id="sp_opme_fp${i}_qtd" value="${norm.qtd}" min="1" max="99" style="width:42px;font-size:12px;padding:1px 4px;border:1px solid var(--s3);border-radius:3px;text-align:center" oninput="updateGuiaFromSidebar()"></span>
+            ${norm.fabricante?`<span class="sb-badge o" style="margin-top:2px;font-size:8px">${norm.fabricante}</span>`:''}
+          </div>
+        </div>`;
+      });
+    } else {
+      noProfileOh+=`<div style="color:var(--s4);font-size:12px;padding:4px">Sem perfil e sem OPME digitada no formulário.</div>`;
+    }
+    noProfileOh+=`<button class="add-row" style="margin-top:8px;font-size:11px;padding:6px 10px" onclick="addOpmeToSidebar()">+ OPME manual</button>`;
+    sbOpmes.innerHTML=noProfileOh;
     if(sbJust)sbJust.value=d.indicacao_clinica||'';
     return;
   }
@@ -1860,12 +2235,12 @@ function populateSidebar(d){
   }
   profile.procedimentos.forEach((p,i)=>{
     const isFav=favProcs.some(f=>f.codigo===p.codigo);
-    const codOk=isValidCodigo(p.codigo);
-    ph+=`<div class="sb-item ${p.tipo}${codOk?'':' sb-invalid'}">
+    ph+=`<div class="sb-item ${p.tipo}">
       <input type="checkbox" class="sb-cb" id="sp_proc_${i}" ${p.tipo==='essencial'?'checked':''} onchange="updateGuiaFromSidebar()">
       <div class="sb-info">
-        <span class="sb-code" style="${codOk?'':'color:var(--r1);font-weight:700'}">${p.codigo}${codOk?'':' ⚠️'}</span>
+        <span class="sb-code">${p.codigo}</span>
         <span class="sb-desc">${p.descricao}</span>
+        <span class="sb-qtd" style="display:inline-flex;align-items:center;gap:3px">×<input type="number" id="sp_proc_${i}_qtd" value="${p.qtd||1}" min="1" max="99" style="width:42px;font-size:12px;padding:1px 4px;border:1px solid var(--s3);border-radius:3px;text-align:center" oninput="updateGuiaFromSidebar()"></span>
         <span class="sb-badge ${p.tipo==='essencial'?'e':'o'}">${p.tipo}</span>
       </div>
       <button class="fav-btn" title="Favoritar" onclick="toggleFavProc('${p.codigo}','${p.descricao.replace(/'/g,'\\\'')}')" style="background:none;border:none;cursor:pointer;font-size:14px;flex-shrink:0;padding:0 2px">${isFav?'♥':'♡'}</button>
@@ -1920,6 +2295,7 @@ function addOpmeToSidebar(){
     <button onclick="document.getElementById('sp_manual_${n}').remove();updateGuiaFromSidebar()" style="background:none;border:none;color:var(--r1);cursor:pointer;font-size:14px;flex-shrink:0">✕</button>`;
   const addBtn=container.querySelector('.add-row');
   container.insertBefore(div,addBtn);
+  updateGuiaFromSidebar();
 }
 
 function addProcToSidebar(){
@@ -1933,7 +2309,7 @@ function addProcToSidebar(){
       <div class="sb-manual-row" style="display:flex;gap:4px">
         <input type="text" placeholder="Código (ex: 3.07.15.18-0)" id="sp_proc_m${n}_cod" style="width:120px" oninput="updateGuiaFromSidebar()">
         <input type="text" placeholder="Descrição do procedimento" id="sp_proc_m${n}_desc" style="flex:1" oninput="updateGuiaFromSidebar()">
-        <input type="number" value="1" min="1" max="99" id="sp_proc_m${n}_qtd" title="Quantidade" style="width:48px;font-size:12px;padding:1px 4px;border:1px solid var(--s3);border-radius:3px;text-align:center" oninput="updateGuiaFromSidebar()">
+        <input type="number" value="1" min="1" max="99" id="sp_proc_m${n}_qtd" style="width:42px;font-size:12px;padding:1px 4px;border:1px solid var(--s3);border-radius:3px;text-align:center" oninput="updateGuiaFromSidebar()">
       </div>
       <span class="sb-badge m">manual</span>
     </div>
@@ -1941,21 +2317,6 @@ function addProcToSidebar(){
   const addBtn=container.querySelector('.add-row');
   container.insertBefore(div,addBtn);
 }
-
-/* ── BILLING: USER ID ── */
-function getBillingUserId(){
-  let uid=localStorage.getItem('NEUROAUTH_USER_ID')||'';
-  if(!uid){
-    uid=prompt('⚙️ NEUROAUTH — Primeiro acesso\n\nDefina seu ID de usuário para rastreabilidade de billing.\nUse o formato: nome-cidade (ex: dr-jose-barbalha)\n\nEsse valor fica salvo no navegador e vai em toda autorização gerada.','');
-    if(uid){
-      uid=uid.toLowerCase().trim().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'');
-      localStorage.setItem('NEUROAUTH_USER_ID',uid);
-    }
-  }
-  return uid||'anonimo';
-}
-// Inicializa user_id silenciosamente se já existir, sem prompt
-(function(){localStorage.getItem('NEUROAUTH_USER_ID');})();
 
 /* ── FAVORITOS ── */
 function getFavs(type){
@@ -2006,7 +2367,7 @@ function loadFavProcs(){
     if(!exists){
       addProcToSidebar();
       const items=document.querySelectorAll('[id^="sp_proc_m"]');
-      const last=Array.from(items).filter(el=>el.tagName==='INPUT'&&el.type==='checkbox').pop();
+      const last=Array.from(items).filter(el=>!el.id.endsWith('_cod')&&!el.id.endsWith('_desc')).pop();
       if(last){
         const n=last.id.replace('sp_proc_m','');
         const codEl=document.getElementById('sp_proc_m'+n+'_cod');
@@ -2053,19 +2414,18 @@ function getSelectedProcs(){
       if(cb.id.includes('_m'))return;
       if(cb.checked){
         const idx=parseInt(cb.id.replace('sp_proc_',''));
-        if(!isNaN(idx)&&profile.procedimentos[idx])items.push({...profile.procedimentos[idx]});
+        if(!isNaN(idx)&&profile.procedimentos[idx]){const qtdEl=document.getElementById('sp_proc_'+idx+'_qtd');const qtd=qtdEl?Math.max(1,parseInt(qtdEl.value)||1):(profile.procedimentos[idx].qtd||1);items.push({...profile.procedimentos[idx],qtd});}
       }
     });
   }
   // Manuais
   document.querySelectorAll('[id^="sp_proc_m"]').forEach(cb=>{
-    if(cb.id.endsWith('_cod')||cb.id.endsWith('_desc')||cb.id.endsWith('_qtd'))return;
+    if(cb.id.endsWith('_cod')||cb.id.endsWith('_desc'))return;
     if(cb.checked){
       const n=cb.id.replace('sp_proc_m','');
       const cod=(document.getElementById('sp_proc_m'+n+'_cod')?.value||'').trim();
       const desc=(document.getElementById('sp_proc_m'+n+'_desc')?.value||'').trim();
-      const qtd=Math.max(1,parseInt(document.getElementById('sp_proc_m'+n+'_qtd')?.value)||1);
-      if(cod||desc)items.push({codigo:cod,descricao:desc,tipo:'manual',qtd});
+      if(cod||desc){const mqtd=Math.max(1,parseInt(document.getElementById('sp_proc_m'+n+'_qtd')?.value)||1);items.push({codigo:cod,descricao:desc,tipo:'manual',qtd:mqtd});}
     }
   });
   return items;
@@ -2089,15 +2449,30 @@ function getSelectedOpmesFull(){
       }
     });
   }
-  // Manuais — seletor corrigido: [id$=""] não faz match por spec CSS3
+  // Manuais — via [id^="sp_opme_m"] (sem [id$=""] que não casa com string vazia)
   document.querySelectorAll('[id^="sp_opme_m"]').forEach(cb=>{
     if(cb.id.endsWith('_name')||cb.id.endsWith('_qtd'))return;
     if(cb.tagName!=='INPUT'||cb.type!=='checkbox')return;
     if(cb.checked){
       const n=cb.id.replace('sp_opme_m','');
-      const name=(document.getElementById('sp_opme_m'+n+'_name')?.value||'').trim();
-      const qtd=Math.max(1,parseInt(document.getElementById('sp_opme_m'+n+'_qtd')?.value)||1);
-      if(name)items.push({nome:name,descricao:name,qtd,tipo:'manual'});
+      const name=document.getElementById('sp_opme_m'+n+'_name')?.value||'';
+      const qtd=parseInt(document.getElementById('sp_opme_m'+n+'_qtd')?.value)||1;
+      if(name.trim())items.push({nome:name,qtd,tipo:'manual'});
+    }
+  });
+  // Itens de formulário no sidebar (sem perfil) — via [id^="sp_opme_fp"]
+  document.querySelectorAll('[id^="sp_opme_fp"]').forEach(cb=>{
+    if(cb.id.endsWith('_qtd'))return;
+    if(cb.tagName!=='INPUT'||cb.type!=='checkbox')return;
+    if(cb.checked){
+      const n=cb.id.replace('sp_opme_fp','');
+      const qtdEl=document.getElementById('sp_opme_fp'+n+'_qtd');
+      const qtd=qtdEl?Math.max(1,parseInt(qtdEl.value)||1):1;
+      // recupera descricao do label vizinho
+      const info=cb.closest('.sb-item');
+      const descEl=info?info.querySelector('.sb-desc'):null;
+      const name=descEl?descEl.textContent.trim():'';
+      if(name)items.push({nome:name,qtd,tipo:'automatico'});
     }
   });
   return items;
@@ -2109,21 +2484,25 @@ function updateGuiaFromSidebar(){
   const selProcs=getSelectedProcs();
   const justEl=document.getElementById('sb-justificativa');
   const just=justEl?justEl.value:d.indicacao_clinica;
+
+  // Normalização canônica única — usa getEffectiveOpmeItems (sidebar > formulário)
+  const opmeFinal=getEffectiveOpmeItems(d, selOpmes);
+
   const enriched={
     ...d,
     indicacao_clinica:just,
     justificativa_opme:just,
-    opme_items:selOpmes.map(o=>({descricao:o.nome||o.descricao||'',empresa:'',qtd:o.qtd||1,unidade:'un'}))
+    opme_items:opmeFinal
   };
   const activeProfile=SURGICAL_PROFILES[d.procedimento];
   const profileId=activeProfile?.sp_id||d.procedimento||'MANUAL';
   const procedimentos_formatados=selProcs.length
-    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao} (Qtd: ${p.qtd||1})`).join('\n')
+    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao}`).join('\n')
     : `1. ${d.cod_cbhpm||''} – ${d.procedimento||''}`;
-  const opmes_formatadas=selOpmes.length
-    ? selOpmes.map((o,i)=>`${i+1}. ${o.nome} (qtd: ${o.qtd||1})`).join('\n')
+  const opmes_formatadas=opmeFinal.length
+    ? opmeFinal.map((o,i)=>`${i+1}. ${o.descricao} (qtd: ${o.qtd||1})`).join('\n')
     : '';
-  document.getElementById('sadt-render').innerHTML=renderSADT(d,selProcs);
+  document.getElementById('sadt-render').innerHTML=renderSADT(enriched,selProcs);
   document.getElementById('opme-render').innerHTML=renderOPME(enriched);
   document.getElementById('dados-render').textContent=JSON.stringify({
     ...enriched,
@@ -2132,8 +2511,29 @@ function updateGuiaFromSidebar(){
     opmes_selecionados:selOpmes,
     procedimentos_formatados,
     opmes_formatadas,
-    neuroauth_version:'2.1.1'
+    neuroauth_version:'2.1.2'
   },null,2);
+}
+
+/* ── naGetPrintHeader — retorna cabeçalho de auditoria para impressão ── */
+function naGetPrintHeader(which){
+  const ts  = envioConfirmadoEm
+    ? new Date(envioConfirmadoEm).toLocaleString('pt-BR') : '';
+  const usr = envioUserEmail || naGetSessionField('email') || '';
+  const tipo = which ? which.toUpperCase() : 'GUIA';
+  if(guiaRegistrada){
+    return `<div class="na-print-header oficial">`
+      + `✅ DOCUMENTO OFICIAL REGISTRADO — ${tipo}`
+      + (ts  ? ` — ${ts}`  : '')
+      + (usr ? ` · ${usr}` : '')
+      + ` · NEUROAUTH v3.0</div>`;
+  } else {
+    const now = new Date().toLocaleString('pt-BR');
+    return `<div class="na-print-header draft">`
+      + `⚠️ RASCUNHO — NÃO REGISTRADO — ${tipo}`
+      + ` — Impresso em ${now}`
+      + ` — Envio ainda não confirmado no NEUROAUTH</div>`;
+  }
 }
 
 function printGuia(which){
@@ -2143,19 +2543,45 @@ function printGuia(which){
   const w=window.open('','_blank');
   w.document.write(`<html><head><title>Guia ${which.toUpperCase()} – NEUROAUTH</title>
     <style>
-      body{margin:10px;font-family:Arial,sans-serif}
-      table{border-collapse:collapse;width:100%}
-      td,th{border:1px solid #000;padding:1px 3px;font-size:9px;vertical-align:top}
-      .fn{font-size:7px;display:block;margin-bottom:1px}
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{margin:10px;font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#000;background:#fff}
+      /* Layout geral */
+      .guia-wrap{background:#fff;font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#000;width:100%;margin-bottom:24px}
+      .guia-wrap *{box-sizing:border-box}
+      .guia-table{width:100%;border-collapse:collapse;min-width:600px}
+      .guia-table td,.guia-table th{border:1px solid #000;padding:1px 3px;vertical-align:top}
+      .guia-table td.nb{border:none}
+      /* Campos */
+      .fn{font-size:7px;color:#000;display:block;margin-bottom:1px;font-weight:normal}
       .fv{font-size:10px;font-weight:700;min-height:12px;display:block}
       .fv.sm{font-size:9px}
-      .sh{background:#d0d0d0;font-weight:700;font-size:8px;padding:2px 4px}
-      .logo-u{background:#1f4e79;color:#fff;padding:2px 6px;font-weight:900;font-style:italic}
-      .sig-area{min-height:24px;display:block;border-bottom:1px solid #555}
-      .opme-tbl td,.opme-tbl th{font-size:8px}
-      .logo-uni{display:flex;align-items:center;gap:4px}
+      /* Cabeçalho seção */
+      .sh{background:#d8d8d8;font-weight:700;font-size:8px;padding:2px 4px}
+      /* Logo */
+      .logo-cell{padding:4px 6px;vertical-align:middle;width:140px}
+      .logo-uni{display:flex;align-items:center;gap:5px}
+      .logo-u{width:48px;height:22px;background:#1f4e79;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;font-style:italic;border-radius:2px}
+      .logo-cariri{font-size:9px;font-weight:700;color:#000}
+      .guia-title-cell{text-align:center;font-weight:700;font-size:11px;padding:4px}
+      /* Assinatura */
+      .sig-area{min-height:28px;display:block;border-bottom:1px solid #555}
+      /* OPME */
+      .opme-tbl{width:100%;border-collapse:collapse;font-size:8px}
+      .opme-tbl td,.opme-tbl th{border:1px solid #000;padding:1px 3px;vertical-align:top}
+      .opme-tbl .th{background:#e8e8e8;font-weight:700;font-size:7.5px}
+      /* Impressão */
+      @media print{
+        body{margin:6mm}
+        .guia-wrap{page-break-inside:avoid;margin-bottom:0}
+        @page{margin:10mm;size:A4}
+        .na-print-wm{position:fixed;top:0;left:0;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:9999}
+        .na-print-wm::after{content:'RASCUNHO\\ANÃO REGISTRADO';white-space:pre;font-size:96px;font-weight:900;color:rgba(220,38,38,.13);transform:rotate(-35deg);text-align:center;line-height:1.05;letter-spacing:3px;font-family:Arial,sans-serif;text-transform:uppercase}
+        .na-print-header{display:block;font-size:10px;font-weight:700;padding:5px 10px;margin-bottom:8px;text-align:center}
+        .na-print-header.draft{background:#fef3c7;color:#92400e;border-bottom:2px solid #f59e0b}
+        .na-print-header.oficial{background:#e6f5ed;color:#14532d;border-bottom:2px solid #1e7a4a}
+      }
     </style>
-    </head><body>${html}</body></html>`);
+    </head><body>${naGetPrintHeader(which)}${guiaRegistrada?'':'<div class=\"na-print-wm\"></div>'}${html}</body></html>`);
   w.document.close();
   setTimeout(()=>w.print(),600);
 }
@@ -2181,13 +2607,6 @@ async function confirmedSend(){
   // Enriquecer com seleções do sidebar builder
   const selProcs=getSelectedProcs();
   const selOpmes=getSelectedOpmesFull();
-  // ── Edit 9: bloquear envio se algum procedimento selecionado não tiver código válido ──
-  const invalidProcs=selProcs.filter(p=>!isValidCodigo(p.codigo));
-  if(invalidProcs.length>0){
-    sp.classList.remove('on');btn.disabled=false;
-    toast('⛔ '+invalidProcs.length+' procedimento(s) sem código válido: '+invalidProcs.map(p=>p.descricao||p.codigo||'(sem nome)').join(', '),'er');
-    return;
-  }
   const justEl=document.getElementById('sb-justificativa');
   const just=justEl&&justEl.value.trim()?justEl.value:d.indicacao_clinica;
   // Profile ID para rastreabilidade
@@ -2195,10 +2614,12 @@ async function confirmedSend(){
   const profileId=activeProfile?.sp_id||d.procedimento||'MANUAL';
   // Campos formatados para template Docs (retrocompatível — novos campos, sem remover antigos)
   const procedimentos_formatados=selProcs.length
-    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao} (Qtd: ${p.qtd||1})`).join('\n')
+    ? selProcs.map((p,i)=>`${i+1}. ${p.codigo} – ${p.descricao}`).join('\n')
     : `1. ${d.cod_cbhpm||''} – ${d.procedimento||''}`;
-  const opmes_formatadas=selOpmes.length
-    ? selOpmes.map((o,i)=>`${i+1}. ${o.nome} (qtd: ${o.qtd||1})`).join('\n')
+  // Normalizar OPME antes de enviar — mesma lógica da guia
+  const opmeFinalSend=getEffectiveOpmeItems(d,selOpmes);
+  const opmes_formatadas=opmeFinalSend.length
+    ? opmeFinalSend.map((o,i)=>`${i+1}. ${o.descricao} (qtd: ${o.qtd||1})`).join('\n')
     : `${d.opme_1||''}\n${d.opme_2||''}\n${d.opme_3||''}`.trim();
   const payload={
     ...d,
@@ -2208,63 +2629,14 @@ async function confirmedSend(){
     profile_id:profileId,
     procedimentos_selecionados:selProcs,
     opmes_selecionados:selOpmes,
+    opme_items:opmeFinalSend,
     procedimentos_formatados,
     opmes_formatadas,
-    opme_1:selOpmes[0]?.nome||d.opme_1,
-    opme_2:selOpmes[1]?.nome||d.opme_2,
-    opme_3:selOpmes[2]?.nome||d.opme_3,
-    // ── BILLING BLOCK v2.1.4 ──────────────────────────────────────────
-    // Geração de IDs e timestamps isolados (evitar drift entre campos)
-    ...(()=>{
-      const _now=new Date();
-      const _stamp=_now.toISOString().slice(0,19).replace(/[-:T]/g,'');
-      const _email=(d.email_medico||'').trim().toLowerCase()||getBillingUserId();
-      const _pid=profileId||'MANUAL';
-      const _nome=d.nome_paciente||'';
-      const _iniciais=_nome.split(' ').filter(Boolean).map(p=>p[0]+'.').join('');
-      const _mes=`${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}`;
-      const _offset=-(new Date().getTimezoneOffset());
-      const _sign=_offset>=0?'+':'-';
-      const _oh=String(Math.floor(Math.abs(_offset)/60)).padStart(2,'0');
-      const _om=String(Math.abs(_offset)%60).padStart(2,'0');
-      const _created_at=_now.toISOString().replace('Z',`${_sign}${_oh}:${_om}`);
-      return {
-        // Identificação do evento cobrável
-        billing_id:`NB-${_stamp}-${_pid}-${_email}`,
-        created_at:_created_at,
-        mes_referencia:_mes,
-        // Quem cobra
-        user_id:getBillingUserId(),
-        user_email:_email,
-        medico_nome:d.medico_solicitante||'',
-        hospital_nome:d.hospital||'',
-        convenio:d.convenio||'',
-        convenio_id:(d.convenio||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,''),
-        // Paciente (auditoria operacional)
-        paciente_nome:_nome,
-        paciente_iniciais:_iniciais,
-        // Procedimento
-        profile_id:_pid,
-        procedimento_principal:(d.procedimento||'').slice(0,60),
-        procedimento_resumo:(d.procedimento||'').slice(0,60),
-        // Financeiro
-        valor_estimado:d.valor_estimado||0,
-        valor_unitario:100,
-        qtd_autorizacoes:1,
-        valor_total:100,
-        // Status
-        status_pagamento:'pendente',
-        data_pagamento:'',
-        forma_pagamento:'',
-        status_autorizacao:'pendente',
-        // Rastreabilidade
-        guia_principal:'',
-        observacoes:'',
-        billing_eligible:true,
-        neuroauth_version:'v2.1.4',
-        timestamp:_now.toISOString()
-      };
-    })()
+    opme_1:opmeFinalSend[0]?.descricao||d.opme_1,
+    opme_2:opmeFinalSend[1]?.descricao||d.opme_2,
+    opme_3:opmeFinalSend[2]?.descricao||d.opme_3,
+    neuroauth_version:'2.1.2',
+    timestamp:new Date().toISOString()
   };
   try{
     const r=await fetch(WH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -2273,6 +2645,11 @@ async function confirmedSend(){
       closeModal('pvModal');
       toast('🎉 Enviado! Documento sendo gerado no Make.com…','ok');
       localStorage.removeItem('neuroauth_draft');
+      /* NEUROAUTH DRAFT CONTROL — marcar guia como oficialmente registrada */
+      guiaRegistrada    = true;
+      envioConfirmadoEm = new Date().toISOString();
+      envioUserEmail    = naGetSessionField('email') || '';
+      naUpdateAuditUI();
     } else {
       throw new Error('HTTP '+r.status);
     }
@@ -2385,16 +2762,14 @@ document.addEventListener('keydown',e=>{
    INIT
 ────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',()=>{
-  restoreDraft();
-  if(!document.querySelectorAll('[id^="or"]').length)addOpme();
-  goTab(0);
+  // Auth layer handles restoreDraft/addOpme/goTab(0) via naEnterForm()
+  naCheckSession();
 });
 </script>
 
-<!-- ══════════════════════════════════════
-     PWA: Self-Contained (SW + Manifest + Icons como Blob URLs)
-     Não requer arquivos externos — funciona em qualquer hospedagem
-     ══════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════
+     BANNERS: Offline / Update / Install
+     ═══════════════════════════════════════ -->
 
 <div id="offlineBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
   background:#b45309;color:#fff;text-align:center;padding:8px 16px;font-size:13px;font-weight:600;
@@ -2419,125 +2794,85 @@ document.addEventListener('DOMContentLoaded',()=>{
   <div style="display:flex;gap:8px;">
     <button onclick="installApp()" style="background:#22c55e;border:none;color:#fff;padding:6px 16px;
       border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;">Instalar</button>
-    <button onclick="document.getElementById(\'installBanner\').style.display=\'none\'"
+    <button onclick="document.getElementById('installBanner').style.display='none'"
       style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;
       padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;">Agora não</button>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════
+     PWA — Service Worker Registration
+     ═══════════════════════════════════════ -->
 <script>
 (function() {
-/* ─── Gera ícone via Canvas (sem arquivos externos) ─── */
-function makeIconDataURL(size) {
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const ctx = c.getContext('2d');
-  // Background
-  ctx.fillStyle = '#1a3f6f';
-  ctx.fillRect(0, 0, size, size);
-  // Círculo de borda
-  ctx.strokeStyle = '#2d6fad';
-  ctx.lineWidth = Math.max(2, size/32);
-  ctx.beginPath();
-  ctx.arc(size/2, size/2, size*0.42, 0, Math.PI*2);
-  ctx.stroke();
-  // Cruz médica branca
-  const r = size * 0.32, bar = size / 9;
-  ctx.fillStyle = 'white';
-  ctx.fillRect(size/2 - bar/2, size/2 - r, bar, r*2);
-  ctx.fillRect(size/2 - r, size/2 - bar/2, r*2, bar);
-  // Texto "NA"
-  const fs = Math.max(8, size/9);
-  ctx.fillStyle = '#64b5f6';
-  ctx.font = `bold ${fs}px Arial`;
-  ctx.textAlign = 'center';
-  ctx.fillText('NA', size/2, size/2 + r + fs*1.1);
-  return c.toDataURL('image/png');
-}
+  'use strict';
 
-/* ─── Manifest como Blob URL ─── */
-const icon192 = makeIconDataURL(192);
-const icon512 = makeIconDataURL(512);
-const icon152 = makeIconDataURL(152);
+  /* ── Install prompt ── */
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    var banner = document.getElementById('installBanner');
+    if (banner) banner.style.display = 'flex';
+  });
 
-const manifest = {
-  "name": "NEUROAUTH — Autorização Cirúrgica",
-  "short_name": "NEUROAUTH",
-  "description": "Formulário de solicitação de autorização cirúrgica neurocirúrgica",
-  "start_url": "./",
-  "display": "standalone",
-  "orientation": "portrait-primary",
-  "background_color": "#1a3f6f",
-  "theme_color": "#1a3f6f",
-  "lang": "pt-BR",
-  "icons": [
-    {"src": icon192, "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
-    {"src": icon512, "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
-    {"src": icon152, "sizes": "152x152", "type": "image/png", "purpose": "any"}
-  ],
-  "prefer_related_applications": false
-};
+  window.installApp = function() {
+    var banner = document.getElementById('installBanner');
+    if (banner) banner.style.display = 'none';
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
+    }
+  };
 
-const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
-const manifestURL = URL.createObjectURL(manifestBlob);
-const manifestLink = document.createElement('link');
-manifestLink.rel = 'manifest';
-manifestLink.href = manifestURL;
-document.head.appendChild(manifestLink);
+  /* ── Offline detection ── */
+  function updateOnlineStatus() {
+    var b = document.getElementById('offlineBanner');
+    if (!b) return;
+    b.style.display = navigator.onLine ? 'none' : 'block';
+  }
+  window.addEventListener('online',  updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
 
-// Apple touch icons (inline canvas)
-const touchIcon = document.createElement('link');
-touchIcon.rel = 'apple-touch-icon';
-touchIcon.href = icon192;
-document.head.appendChild(touchIcon);
-['152', '192'].forEach(s => {
-  const l = document.createElement('link');
-  l.rel = 'apple-touch-icon'; l.sizes = s+'x'+s;
-  l.href = s === '152' ? icon152 : icon192;
-  document.head.appendChild(l);
-});
+  /* ── Service Worker registration ── */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then(function(reg) {
+          console.log('[NEUROAUTH] SW registrado, scope:', reg.scope);
 
-/* ─── Service Worker como Blob URL ─── */
-const swCode = `/* ============================================================
-   NEUROAUTH — Service Worker
-   Estratégia: Cache-first com network fallback
-   Otimizado para ambiente hospitalar (internet instável)
-   ============================================================ */
+          /* Detectar update disponível */
+          reg.addEventListener('updatefound', function() {
+            var newWorker = reg.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                var b = document.getElementById('updateBanner');
+                if (b) b.style.display = 'block';
+              }
+            });
+          });
+        })
+        .catch(function(err) {
+          console.warn('[NEUROAUTH] SW falhou ao registrar:', err);
+        });
 
-const APP_VERSION = 'neuroauth-v2.1';
-const CACHE_NAME  = \`\${APP_VERSION}-cache\`;
+      /* updateApp: força reload com novo SW */
+      window.updateApp = function() {
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+        }
+        window.location.reload();
+      };
 
-// Recursos que DEVEM estar disponíveis offline
-const PRECACHE_URLS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon-192x192.png',
-  './icons/icon-512x512.png',
-];
+      /* Recarregar quando novo SW assume controle */
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        window.location.reload();
+      });
+    });
+  }
+})();
+</script>
 
-/* ──────────────────────────────────────────────
-   INSTALL — pré-cache de recursos críticos
-────────────────────────────────────────────── */
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('[SW] Pré-cacheando recursos críticos');
-        return cache.addAll(PRECACHE_URLS);
-      })
-      .then(() => self.skipWaiting()) // Ativa imediatamente sem esperar reload
-  );
-});
-
-/* ──────────────────────────────────────────────
-   ACTIVATE — limpa caches antigos
-────────────────────────────────────────────── */
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all()
-        cacheNames
-          .filter(name => name !== CACHE_NAME)
-          .map(name => {
-            console.log('[SW] Removendo cache antigo:', name)   ��&WGW&�66�W2�FV�WFR���R���Ґ����Ғ�F�V₂���6V�b�6ƖV�G2�6��҂����77V�R6��G&��R��VF�F�FRF�F22&0����ғ����)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H �dUD4�(	BW7G&L:�v�&�&�V�FR��7�F� ��&�f�&�V�:&����D��66�R�f�'7B�&WfƖF:|:6�V�&6�w&�V�@�&�vV&�������R�6�ғ��WGv�&����ǒ6��f���ffƖ�P�&�WG&�3�7F�R�v���R�&WfƖFFP�)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H��6V�b�FDWfV�DƗ7FV�W"�vfWF6�r�WfV�B����6��7BW&���WrU$WfV�B�&WVW7B�W&�����tT$������R�6��(	B6V�&RFV�F�WGv�&��6RfƆ"�V�f��V�&��b�W&���7F��R��6�VFW2�v��R�6��r���W&���7F��R��6�VFW2�v�����r����WfV�B�&W7��Ev�F���WGv�&�v�F�VWVTf��&6��WfV�B�&WVW7B����&WGW&㰢Р���&V7W'6�2W�FW&��2�f��G2�4D�2�(	B�b�W&���&�v����6V�b���6F�����&�v�␢�b�W&���&�v����6V�b���6F�����&�v����WfV�B�&W7��Ev�F���WGv�&�f�'7Ev�F�66�R�WfV�B�&WVW7B����&WGW&㰢Р���&V7W'6�2��6�2��D���552��2��6��2��66�R�f�'7B6��&WfƖF:|:6�WfV�B�&W7��Ev�F��66�Tf�'7Ev�F�&WfƖFFR�WfV�B�&WVW7B����ғ����)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H �U5E$L8�t�2DR44�P�)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H����66�R�f�'7C�&WF�&�F�66�R��7F�F�V�V�FS�GVƗ�V�&6�w&�V�@�7��2gV�7F���66�Tf�'7Ev�F�&WfƖFFR�&WVW7B���6��7B66�R�v�B66�W2��V�44�U���R���6��7B66�VB�v�B66�R��F6��&WVW7B������F�7&GVƗ�:|:6�V�&6�w&�V�B6V�&��VV �6��7B�WGv�&�fWF6��fWF6��&WVW7B��F�V�&W7��6R�����b�&W7��6Rbb&W7��6R�7FGW2���#���66�R�WB�&WVW7B�&W7��6R�6���R�����Т&WGW&�&W7��6S��Ғ�6F6�������V������&WF�&�66�R��VF�F�V�FR6RF�7��:�fV��&fV��6�FFRV���L:6��b�66�VB���&WGW&�66�VC��Р���6R�:6�FV�66�R�W7W&&VFP�&WGW&��WGv�&�fWF6����Wr&W7��6R�t�ffƖ�R(	B&V7W'6��:6�F�7��:�fV�r���7FGW3�S2���VFW'3��t6��FV�B�G�Rs�wFW�B����6�'6WC�WFbӂrТғ��Р����WGv�&��f�'7C�FV�F&VFR&��V�&��f��&6�&66�P�7��2gV�7F����WGv�&�f�'7Ev�F�66�R�&WVW7B���6��7B66�R�v�B66�W2��V�44�U���R���G'���6��7B&W7��6R�v�BfWF6��&WVW7B��6�v�â&�'E6�v���F��V�WB�C�ғ���b�&W7��6Rbb&W7��6R�7FGW2���#���66�R�WB�&WVW7B�&W7��6R�6���R�����Т&WGW&�&W7��6S���6F6���6��7B66�VB�v�B66�R��F6��&WVW7B���&WGW&�66�VB���Wr&W7��6R�rr��7FGW3�C�ғ��ЧР��)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H �d���ddĔ�R$tT$������V�F����R�6���:6�W7L:6W7<:�fV��&VFR��7�F�"��7L:fV��6�f����BV���FW�VDD"R&VV�l:�V�F�6��W�:6�f��F"�)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H��6��7BTUTU�D"�v�WW&�WF���ffƖ�R�VWVRs��6��7BTUTU�5D�$R�wV�F��r�&WVW7G2s���7��2gV�7F����WGv�&�v�F�VWVTf��&6��&WVW7B���G'���6��7B&W7��6R�v�BfWF6��&WVW7B�6���R����6�v�â&�'E6�v���F��V�WB���ғ��&WGW&�&W7��6S���6F6��W'"�����fƆFR&VFR(	B6�f�f���ffƖ�P�6��7B&�G��v�B&WVW7B�FW�B����v�B6fUF��ffƖ�UVWVR���W&â&WVW7B�W&����WF��C�&WVW7B��WF��B���VFW'3��&�V7B�g&��V�G&�W2�&WVW7B�VFW'2�V�G&�W2�����&�G��&�G���F��W7F��FFR���r���ғ�������F�f�6T��6��7B6ƖV�G2�v�B6V�b�6ƖV�G2��F6�����6ƖV�G2�f�$V6��6ƖV�B��6ƖV�B��7D�W76vR���G�S�t�ddĔ�U�TUTTBr���W76vS�u6V�6��W�:6��6�Ɩ6�F:|:6�6�fR6W,:V�f�FWF��F�6�V�FRV�F�&VFRf��F"�p�Ғ������&WF�&�&W7�7F6��V�F&�:6�VV'&"�f�W��FT��&WGW&��Wr&W7��6R��4���7G&��v�g����7FGW3�wVWVVBr���W76vS�t�ffƖ�R(	BV�f�F�&f��p�Ғ���7FGW3�#"���VFW'3��t6��FV�B�G�Rs�vƖ6F�����6��rТғ��ЧР�7��2gV�7F���6fUF��ffƖ�UVWVR��FVҒ��&WGW&��Wr&�֗6R��&W6��fR�&V�V7B�����6��7B&W���FW�VDD"��V�TUTU�D"����&W���Ww&FV�VVFVB�R����R�F&vWB�&W7V�B�7&VFT�&�V7E7F�&R�TUTU�5D�$R��WF���7&V�V�C�G'VRғ��Ӱ�&W���7V66W72�R����6��7BF"�R�F&vWB�&W7V�C��6��7BG��F"�G&�67F���TUTU�5D�$R�w&VGw&�FRr���G���&�V7E7F�&R�TUTU�5D�$R��FB��FVғ��G����6���WFR�����&W6��fR����G����W'&�"�����&V�V7B�G��W'&�"���Ӱ�&W���W'&�"�����&V�V7B�&W�W'&�"���ғ��Р��)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H �5��2(	B&VV�f��WF��:F�6�V�F�&VFRf��F�)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H��6V�b�FDWfV�DƗ7FV�W"�w7��2r�WfV�B�����b�WfV�B�Fr���v�WW&�WF��7��2r���WfV�B�v�EV�F�f�W6��ffƖ�UVWVR�����Чғ���7��2gV�7F���f�W6��ffƖ�UVWVR����&WGW&��Wr&�֗6R��&W6��fR�����6��7B&W���FW�VDD"��V�TUTU�D"����&W���7V66W72�R����6��7BF"�R�F&vWB�&W7V�C��6��7BG��F"�G&�67F���TUTU�5D�$R�w&VGw&�FRr���6��7B7F�&R�G���&�V7E7F�&R�TUTU�5D�$R���6��7BvWD���7F�&R�vWD����6��7BvWD�ĶW�2�7F�&R�vWD�ĶW�2�����&�֗6R�����Wr&�֗6R�"���vWD�����7V66W72�����"�vWD���&W7V�B��Ғ���Wr&�֗6R�"���vWD�ĶW�2���7V66W72�����"�vWD�ĶW�2�&W7V�B��Ґ�Ғ�F�V₅��FV�2��W�5Ғ����6��7B6V�G2��FV�2�����FV������fWF6���FV��W&�����WF��C��FV���WF��B���VFW'3��FV��VFW'2��&�G���FV��&�G��Ғ�F�V₂�������&V��fRFf��;727V6W76�6��7BFV�G��F"�G&�67F���TUTU�5D�$R�w&VGw&�FRr���FV�G���&�V7E7F�&R�TUTU�5D�$R��FV�WFR��W�5��ғ��Ғ�6F6�������Ғ����L:���f��6R��FfƆ ����&�֗6R��6V�G2��F�V�&W6��fR���ғ��Ӱ�&W���W'&�"�����&W6��fR����ғ��Р��)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H ��U54tU2(	B6��V�6:|:6�6��T��)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H)H��6V�b�FDWfV�DƗ7FV�W"�v�W76vRr�WfV�B�����b�WfV�B�FF��G�R���u4���t�D��rr���6V�b�6��v�F��r����Т�b�WfV�B�FF��G�R���ttUE�dU%4���r���WfV�B��'G5�����7D�W76vR��fW'6����dU%4���ғ��Чғ���6��6��R���r�u�5u��UU$�UD�6W'f�6Rv�&�W"6'&VvF�(	Br��dU%4��⓰���6��7B7t&��"��Wr&��"��7t6�FU���G�S�vƖ6F�����f67&�Bwғ��6��7B7uU$��U$��7&VFT�&�V7EU$7t&��"�����WB7u&Vv�7G&F�����V����Wuv�&�W"��V���FVfW'&VD��7F��&��B��V�ð���b�w6W'f�6Uv�&�W"r���f�vF�"���v��F�r�FDWfV�DƗ7FV�W"�v��Br��������f�vF�"�6W'f�6Uv�&�W"�&Vv�7FW"�7uU$���66�S�r��w����F�V�&Vr����7u&Vv�7G&F����&Vs��6��6��R���r�u�t�5r&Vv�7G&F�f�&��"U$�r���&Vr�FDWfV�DƗ7FV�W"�wWFFVf�V�Br��������Wuv�&�W"�&Vr��7F�Ɩ�s���Wuv�&�W"�FDWfV�DƗ7FV�W"�w7FFV6��vRr��������b��Wuv�&�W"�7FFR���v��7F��VBrbb�f�vF�"�6W'f�6Uv�&�W"�6��G&���W"���F�7V�V�B�vWDV�V�V�D'��B�wWFFT&��W"r��7G��R�F�7���v&��6�s��Тғ��ғ���b�u7��4��vW"r��v��F�r�&Vr�7��2�&Vv�7FW"�v�WW&�WF��7��2r��6F6������ғ��Ґ��6F6��W'"��6��6��R�v&�u�t�5r&��"fƆ�R�FV�F�F�6֖��F�&WF�r�W'"������f�vF�"�6W'f�6Uv�&�W"�FDWfV�DƗ7FV�W"�v�W76vRr�WfV�B�����b�WfV�B�FF��G�R���t�ddĔ�U�TUTTBr���6��7B&��W"�F�7V�V�B�vWDV�V�V�D'��B�v�ffƖ�T&��W"r����b�&��W"��&��W"�FW�D6��FV�B�~)����r�WfV�B�FF��W76vS�&��W"�7G��R�F�7���v&��6�s�ТТғ��ғ��Р��)H)H)H��Ɩ�R��ffƖ�R)H)H)H��gV�7F���WFFT��Ɩ�U7FGW2����6��7B&��W"�F�7V�V�B�vWDV�V�V�D'��B�v�ffƖ�T&��W"r����b�&��W"�&WGW&㰢�b��f�vF�"���Ɩ�R���&��W"�7G��R�F�7���v&��6�s��&��W"�FW�D6��FV�B�~)����6V�6��W�:6�(	B&67V��6�f��6W,:V�f�F�V�F�&VFRf��F"�s���V�6R��&��W"�7G��R�F�7���v���Rs���b�7u&Vv�7G&F���bbu7��4��vW"r��v��F�r�7u&Vv�7G&F����7��2�&Vv�7FW"�v�WW&�WF��7��2r��6F6������ғ��ЧЧv��F�r�FDWfV�DƗ7FV�W"�v��Ɩ�Rr�WFFT��Ɩ�U7FGW2���v��F�r�FDWfV�DƗ7FV�W"�v�ffƖ�Rr�WFFT��Ɩ�U7FGW2���WFFT��Ɩ�U7FGW2�����gV�7F���WFFT����b��Wuv�&�W"���Wuv�&�W"��7D�W76vR��G�S�u4���t�D��rwғ�v��F�r���6F����&V��B����Р��)H)H)H��7F��&��B)H)H)H��v��F�r�FDWfV�DƗ7FV�W"�v&Vf�&V��7F��&��Br�R����R�&WfV�DFVfV�B���FVfW'&VD��7F��&��B�S��6WEF��V�WB�������6��7B"�F�7V�V�B�vWDV�V�V�D'��B�v��7F��&��W"r����b�"bb��6�7F�&vR�vWD�FV҂wv���7F��VBr��"�7G��R�F�7���vf�W�s����3���ғ���v��F�r��7F���gV�7F��ₒ���b�FVfW'&VD��7F��&��B�&WGW&㰢FVfW'&VD��7F��&��B�&��B����FVfW'&VD��7F��&��B�W6W$6���6R�F�V�2�����b�2��WF6��R���v66WFVBr�����6�7F�&vR�6WD�FV҂wv���7F��VBr�sr���F�7V�V�B�vWDV�V�V�D'��B�v��7F��&��W"r��7G��R�F�7���v���Rs��Тғ��FVfW'&VD��7F��&��B��V�ð�Ӱ��v��F�r�FDWfV�DƗ7FV�W"�v��7F��VBr���������6�7F�&vR�6WD�FV҂wv���7F��VBr�sr���F�7V�V�B�vWDV�V�V�D'��B�v��7F��&��W"r��7G��R�F�7���v���Rs��ғ���Ғ������67&�C���&�G�����F�
+</body>
+</html>
